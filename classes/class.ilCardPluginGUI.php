@@ -54,7 +54,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             default:
                 // perform valid commands
                 $cmd = $this->ctrl->getCmd();
-                if (in_array($cmd, array("create", "save", "edit", "update", "cancel", "downloadFile"))) {
+                if (in_array($cmd, array("create", "save", "edit", "update", "cancel"))) {
                     $this->$cmd();
                 }
                 break;
