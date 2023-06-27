@@ -16,6 +16,7 @@
 
     background: var(--color-white);
     position: relative;
+    margin-bottom: 2rem;
 }
 .kalamun-card .kalamun-card_prevent-link {
     position: absolute;
@@ -52,6 +53,8 @@
 }
 
 .kalamun-card .kalamun-card_body {
+    display: flex;
+    flex-direction: column;
     padding: 1.5em;
 }
 .kalamun-card .kalamun-card_title a {
@@ -64,17 +67,14 @@
     color: var(--color-grey);
 }
 
-.kalamun-card .kalamun-card_progress.completed {
+.kalamun-card .kalamun-card_progress {
+    display: inline-block;
     background: var(--color-xlight-grey);
     border-radius: 2em;
-    margin: -0.5em auto 1em;
     font-size: var(--font-size-xsmall);
     font-weight: bold;
     color: var(--color-blue);
     padding: 0 1em;
-    position: absolute;
-    top: 2em;
-    right: 2em;
 }
 
 /* file */
@@ -82,6 +82,17 @@
     display: none;
 }
 .kalamun-card[data-type="file"] .kalamun-card_image {
+    width: 5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* test */
+.kalamun-card[data-type="tst"] .kalamun-card_image::after {
+    display: none;
+}
+.kalamun-card[data-type="tst"] .kalamun-card_image {
     width: 5em;
     display: flex;
     align-items: center;
@@ -120,14 +131,12 @@
     }
     .kalamun-card .kalamun-card_body {
         padding: 0.5em 1.5em 1.5em 1.5em;
+        justify-content: center;
     }
-    .kalamun-card .kalamun-card_title,
-    .kalamun-card .kalamun-card_description {
+    .kalamun-card .kalamun-card_body > div {
         text-align: center;
     }
-    .kalamun-card .kalamun-card_progress.completed {
-        position: relative;
-        top: 0;
-        right: 0;
-    }    
+    .kalamun-card .kalamun-card_progress {
+        margin-top: 0.5em;
+    }
 }
