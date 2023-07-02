@@ -225,10 +225,21 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         elseif ($type == "file") $permalink = "/goto.php?target=file_" . $ref_id . "_download";
         elseif ($type == "sahs") $permalink = "/ilias.php?baseClass=ilSAHSPresentationGUI&ref_id=" . $ref_id . "";
         elseif ($type == "tst") $permalink = "/goto.php?target=tst_" . $ref_id . "&client_id=default";
+        //elseif ($type == "tst") $permalink = "/ilias.php?ref_id=" . $ref_id . "&sequence=1&active_id=3&cmd=showQuestion&cmdClass=iltestplayerfixedquestionsetgui&cmdNode=wn:r5:13x&baseClass=ilrepositorygui";
 
+        /* progress statuses:
+        0 = attempt
+        1 = in progress;
+        2 = completed;
+        3 = failed;
+         */
         $lp = ilLearningProgress::_getProgress($this->user->getId(), $obj_id);
-        $lp_started = $lp['visits'] >= 1;
-        $lp_completed = $lp_started && $type == "file";
+        $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
+        $lp_percent = ilLPStatus::_lookupPercentage($obj_id, $this->user->getId());
+        $lp_in_progress = !empty(ilLPStatus::_lookupInProgressForObject($obj_id, [$this->user->getId()]));
+        $lp_completed = ilLPStatus::_hasUserCompleted($obj_id, $this->user->getId());
+        $lp_failed = !empty(ilLPStatus::_lookupFailedForObject($obj_id, [$this->user->getId()]));
+        $lp_downloaded = $lp['visits'] > 0 && $type == "file";
 
         ob_start();
         ?>
@@ -237,10 +248,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 ?><div class="kalamun-card_prevent-link"></div><?php
             } ?>
             <div class="kalamun-card_inner">
-                <?php
-                $lpstatus = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
-                //print_r($lpstatus);
-                ?>
                 <div class="kalamun-card_image">
                     <?= ($tile_image->exists() ? '<a href="' . $permalink . '"><img src="' . $tile_image->getFullPath() . '"></a>' : ''); ?>
                     <?php
@@ -274,10 +281,13 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     <?php }
                     ?>
                     <?php
-                    if (!empty($lp_completed)) { ?>
+                    if (!empty($lp_downloaded)) { ?>
                         <div class="kalamun-card_progress"><?= $this->plugin->txt('downloaded'); ?></div>
                     <?php }
-                    elseif (!empty($lp_started)) { ?>
+                    elseif (!empty($lp_completed)) { ?>
+                        <div class="kalamun-card_progress"><?= $this->plugin->txt('completed'); ?></div>
+                    <?php }
+                    elseif (!empty($lp_in_progress)) { ?>
                         <div class="kalamun-card_progress"><?= $this->plugin->txt('in_progress'); ?></div>
                     <?php }
                     ?>
