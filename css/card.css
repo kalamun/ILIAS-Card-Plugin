@@ -14,9 +14,9 @@
 
     --box-shadow: 0 2px 10px 0 #0002;
 
-    background: var(--color-white);
     position: relative;
-    margin-bottom: 2rem;
+    padding: 1rem 0;
+    height: 100%;
 }
 .kalamun-card .kalamun-card_prevent-link {
     position: absolute;
@@ -31,6 +31,8 @@
     flex-direction: row;
     gap: 0.5em;
     border: 1px solid var(--color-xlight-grey);
+    height: 100%;
+    background: var(--color-white);
 }
 .kalamun-card .kalamun-card_image {
     position: relative;
@@ -54,8 +56,10 @@
 
 .kalamun-card .kalamun-card_body {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     padding: 1.5em;
+    justify-content: space-between;
+    flex-basis: 100%;
 }
 .kalamun-card .kalamun-card_title a {
     font-weight: normal;
@@ -75,6 +79,9 @@
     font-weight: bold;
     color: var(--color-blue);
     padding: 0 1em;
+}
+.kalamun-card .kalamun-card_progress.not-started {
+    display: none;
 }
 
 /* file */
@@ -130,8 +137,8 @@
         pointer-events: none;
     }
     .kalamun-card .kalamun-card_body {
+        flex-direction: column;
         padding: 0.5em 1.5em 1.5em 1.5em;
-        justify-content: center;
     }
     .kalamun-card .kalamun-card_body > div {
         text-align: center;
