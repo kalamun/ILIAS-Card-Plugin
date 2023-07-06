@@ -114,7 +114,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $current_ref_id = $_GET['ref_id'];
 
         $root_course = false;
-        for ($ref_id = $current_ref_id; $ref_id; $ref_id = $DIC->repositoryTree()->getParentNodeData($current_ref_id)['ref_id'] ) {
+        for ($ref_id = $current_ref_id; $ref_id; $ref_id = $this->tree->getParentNodeData($current_ref_id)['ref_id'] ) {
             $node_data = $this->tree->getNodeData($ref_id);
             if (empty($node_data) || $node_data["type"] == "crs") {
                 $root_course = $node_data;
@@ -224,6 +224,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if ($type == "lm") $permalink = "/ilias.php?baseClass=ilLMPresentationGUI&ref_id=" . $ref_id . "&cmd=resume";
         elseif ($type == "file") $permalink = "/goto.php?target=file_" . $ref_id . "_download";
         elseif ($type == "sahs") $permalink = "/ilias.php?baseClass=ilSAHSPresentationGUI&ref_id=" . $ref_id . "";
+        elseif ($type == "htlm") $permalink = "/ilias.php?baseClass=ilHTLMPresentationGUI&ref_id=" . $ref_id . "";
         elseif ($type == "tst") $permalink = "/goto.php?target=tst_" . $ref_id . "&client_id=default";
         //elseif ($type == "tst") $permalink = "/ilias.php?ref_id=" . $ref_id . "&sequence=1&active_id=3&cmd=showQuestion&cmdClass=iltestplayerfixedquestionsetgui&cmdNode=wn:r5:13x&baseClass=ilrepositorygui";
 
