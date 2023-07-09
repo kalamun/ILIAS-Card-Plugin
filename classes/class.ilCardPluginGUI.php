@@ -275,7 +275,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 </div>
                 <div class="kalamun-card_body">
                     <div class="kalamun-card_title">
-                        <a href="<?= $permalink; ?>"><?= $type.' ' .$title; ?></a>
+                        <a href="<?= $permalink; ?>"><?= $title; ?></a>
                     </div>
                     <?php
                     if (!empty($description)) { ?>
