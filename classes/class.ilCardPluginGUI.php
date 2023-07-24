@@ -114,7 +114,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $current_ref_id = $_GET['ref_id'];
 
         $root_course = false;
-        for ($ref_id = $current_ref_id; $ref_id; $ref_id = $this->tree->getParentNodeData($current_ref_id)['ref_id'] ) {
+        for ($ref_id = $current_ref_id; $ref_id; $ref_id = $this->tree->getParentNodeData($ref_id)['ref_id'] ) {
             $node_data = $this->tree->getNodeData($ref_id);
             if (empty($node_data) || $node_data["type"] == "crs") {
                 $root_course = $node_data;
