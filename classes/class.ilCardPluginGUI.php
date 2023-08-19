@@ -63,13 +63,45 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         }
     }
 
+    private static function get_inline_js() : string
+    {
+        $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
+        $mandatory_objects = dciCourse::get_mandatory_objects($root_course['obj_id']);
+        
+        ob_start();
+        ?>
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const fieldObject = document.querySelector('select[name=ref_id]');
+                const fieldMandatory = document.querySelector('input[name=mandatory]');
+    
+                const updateMandatory = () => {
+                    const mandatoryObjects = <?= json_encode($mandatory_objects); ?>;
+                    
+                    if (fieldObject && fieldMandatory && Array.isArray(mandatoryObjects)) {
+                        fieldMandatory.checked = mandatoryObjects.some(obj => obj.ref_id === fieldObject.value);
+                    }
+                }
+    
+                updateMandatory();
+                fieldObject?.addEventListener('change', updateMandatory);
+            });
+        </script>
+        <?php
+        return ob_get_clean();
+    }
+
     /**
      * Create
      */
     public function insert() : void
     {
         $form = $this->initForm(true);
-        $this->tpl->setContent($form->getHTML());
+
+        $html = $form->getHTML();
+        $html .= self::get_inline_js();
+
+        $this->tpl->setContent($html);
     }
 
     /**
@@ -93,7 +125,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     {
         $form = $this->initForm();
 
-        $this->tpl->setContent($form->getHTML());
+        $html = $form->getHTML();
+        $html .= self::get_inline_js();
+
+        $this->tpl->setContent($html);
     }
 
     public function update() : void
@@ -110,21 +145,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $this->tpl->setContent($form->getHTML());
     }
 
-    protected function getRootCourseId() {
-        $current_ref_id = $_GET['ref_id'];
-
-        $root_course = false;
-        for ($ref_id = $current_ref_id; $ref_id; $ref_id = $this->tree->getParentNodeData($ref_id)['ref_id'] ) {
-            $node_data = $this->tree->getNodeData($ref_id);
-            if (empty($node_data) || $node_data["type"] == "crs") {
-                $root_course = $node_data;
-                break;
-            }
-        }
-
-        return $root_course['ref_id'];
-    }
-
     /**
      * Init editing form
      */
@@ -132,10 +152,14 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     {
         $form = new ilPropertyFormGUI();
 
+        $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
+        $subTree = $this->tree->getSubTree($this->tree->getNodeData($root_course['ref_id']));
+        
         $select_options = [];
-        foreach($this->tree->getSubTree($this->tree->getNodeData($this->getRootCourseId())) as $obj) {
+        foreach($subTree as $obj) {
             $select_options[$obj["ref_id"]] = $obj['title'] . " (" . $obj['type'] . " / " . $obj['last_update'] . ")";
         }
+        natcasesort($select_options);
 
         // choose object
         $input_ref_if = new ilSelectInputGUI($this->lng->txt("object"), "ref_id");
@@ -156,6 +180,11 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $input_description->setSize(40);
         $input_description->setRequired(false);
         $form->addItem($input_description);
+
+        // mandatory
+        $input_mandatory = new ilCheckBoxInputGUI($this->lng->txt("mandatory"), 'mandatory');
+        $input_mandatory->setRequired(false);
+        $form->addItem($input_mandatory);
         
         // save and cancel commands
         if ($a_create) {
@@ -185,6 +214,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $properties['ref_id'] = $form->getInput('ref_id');
             $properties['title'] = $form->getInput('title');
             $properties['description'] = $form->getInput('description');
+
+            $mandatory = $form->getInput('mandatory');
+            $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
+            dciCourse::update_mandatory_object($root_course['obj_id'], $properties['ref_id'], $mandatory);
 
             if ($a_create) {
                 return $this->createElement($properties);
