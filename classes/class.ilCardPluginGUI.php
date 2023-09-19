@@ -111,9 +111,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     {
         $form = $this->initForm(true);
         if ($this->saveForm($form, true)) {
-            ;
-        }
-        {
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("msg_obj_modified"), true);
             $this->returnToParent();
         }
@@ -135,9 +132,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     {
         $form = $this->initForm(false);
         if ($this->saveForm($form, false)) {
-            ;
-        }
-        {
             $this->tpl->setOnScreenMessage("success", $this->lng->txt("msg_obj_modified"), true);
             $this->returnToParent();
         }
@@ -259,7 +253,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         elseif ($type == "sahs") $permalink = "/ilias.php?baseClass=ilSAHSPresentationGUI&ref_id=" . $ref_id . "";
         elseif ($type == "htlm") $permalink = "/ilias.php?baseClass=ilHTLMPresentationGUI&ref_id=" . $ref_id . "";
         elseif ($type == "tst") $permalink = "/goto.php?target=tst_" . $ref_id . "&client_id=default";
-        elseif ($type == "fold") $permalink = "/ilias.php?ref_id=" . $ref_id . "&cmd=view&cmdClass=ilrepositorygui&cmdNode=wk&baseClass=ilrepositorygui";
+        elseif ($type == "fold") $permalink = "/ilias.php?ref_id=" . $ref_id . "&cmd=view&cmdClass=ilrepositorygui&cmdNode=wl&baseClass=ilrepositorygui";
         //elseif ($type == "tst") $permalink = "/ilias.php?ref_id=" . $ref_id . "&sequence=1&active_id=3&cmd=showQuestion&cmdClass=iltestplayerfixedquestionsetgui&cmdNode=wn:r5:13x&baseClass=ilrepositorygui";
 
         /* progress statuses:
