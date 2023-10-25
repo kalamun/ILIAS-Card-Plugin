@@ -248,12 +248,31 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         
         /* TODO: find a proper way to get the permalink -> maybe with $this->ctrl->getLinkTarget */
         $permalink = "";
-        if ($type == "lm") $permalink = "/ilias.php?baseClass=ilLMPresentationGUI&ref_id=" . $ref_id . "&cmd=resume";
-        elseif ($type == "file") $permalink = "/goto.php?target=file_" . $ref_id . "_download";
-        elseif ($type == "sahs") $permalink = "/ilias.php?baseClass=ilSAHSPresentationGUI&ref_id=" . $ref_id . "";
-        elseif ($type == "htlm") $permalink = "/ilias.php?baseClass=ilHTLMPresentationGUI&ref_id=" . $ref_id . "";
-        elseif ($type == "tst") $permalink = "/goto.php?target=tst_" . $ref_id . "&client_id=default";
-        elseif ($type == "fold") $permalink = "/ilias.php?ref_id=" . $ref_id . "&cmd=view&cmdClass=ilrepositorygui&cmdNode=wl&baseClass=ilrepositorygui";
+        if ($type == "lm") {
+            $this->ctrl->setParameterByClass("ilLMPresentationGUI", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilLMPresentationGUI", "resume");
+            //$permalink = "/ilias.php?baseClass=ilLMPresentationGUI&ref_id=" . $ref_id . "&cmd=resume";
+        } elseif ($type == "file") {
+            $this->ctrl->setParameterByClass("ilLMPresentationGUI", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilLMPresentationGUI", "download");
+            //$permalink = "/goto.php?target=file_" . $ref_id . "_download";
+        } elseif ($type == "sahs") {
+            $this->ctrl->setParameterByClass("ilSAHSPresentationGUI", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilSAHSPresentationGUI", "view");
+            //$permalink = "/ilias.php?baseClass=ilSAHSPresentationGUI&ref_id=" . $ref_id . "";
+        } elseif ($type == "htlm") {
+            $this->ctrl->setParameterByClass("ilHTLMPresentationGUI", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilHTLMPresentationGUI", "view");
+            //$permalink = "/ilias.php?baseClass=ilHTLMPresentationGUI&ref_id=" . $ref_id . "";
+        } elseif ($type == "tst") {
+            $this->ctrl->setParameterByClass("ilTestPresentationGUI", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilTestPresentationGUI", "view");
+            //$permalink = "/goto.php?target=tst_" . $ref_id . "&client_id=default";
+        } elseif ($type == "fold") {
+            $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
+            //$permalink = "/ilias.php?ref_id=" . $ref_id . "&cmd=view&cmdClass=ilrepositorygui&cmdNode=wl&baseClass=ilrepositorygui";
+        }
         //elseif ($type == "tst") $permalink = "/ilias.php?ref_id=" . $ref_id . "&sequence=1&active_id=3&cmd=showQuestion&cmdClass=iltestplayerfixedquestionsetgui&cmdNode=wn:r5:13x&baseClass=ilrepositorygui";
 
         /* progress statuses:
@@ -309,23 +328,25 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         <div class="kalamun-card_description"><?= $description; ?></div>
                     <?php }
                     ?>
-                    <?php
-                    if (!empty($lp_downloaded)) { ?>
-                        <div class="kalamun-card_progress downloaded completed"><?= $this->plugin->txt('downloaded'); ?></div>
-                    <?php }
-                    elseif (!empty($lp_completed)) { ?>
-                        <div class="kalamun-card_progress completed"><?= $this->plugin->txt('completed'); ?></div>
-                    <?php }
-                    elseif (!empty($lp_in_progress)) { ?>
-                        <div class="kalamun-card_progress in-progress"><?= $this->plugin->txt('in_progress'); ?></div>
-                    <?php }
-                    elseif (!empty($lp_failed)) { ?>
-                        <div class="kalamun-card_progress failed"><?= $this->plugin->txt('failed'); ?></div>
-                    <?php }
-                    else { ?>
-                        <div class="kalamun-card_progress not-started"></div>
-                    <?php }
-                    ?>
+                    <a href="<?= $permalink; ?>" title="<?= addslashes($title); ?>">
+                        <?php
+                        if (!empty($lp_downloaded)) { ?>
+                            <div class="kalamun-card_progress downloaded completed"><?= $this->plugin->txt('downloaded'); ?></div>
+                        <?php }
+                        elseif (!empty($lp_completed)) { ?>
+                            <div class="kalamun-card_progress completed"><?= $this->plugin->txt('completed'); ?></div>
+                        <?php }
+                        elseif (!empty($lp_in_progress)) { ?>
+                            <div class="kalamun-card_progress in-progress"><?= $this->plugin->txt('in_progress'); ?></div>
+                        <?php }
+                        elseif (!empty($lp_failed)) { ?>
+                            <div class="kalamun-card_progress failed"><?= $this->plugin->txt('failed'); ?></div>
+                        <?php }
+                        else { ?>
+                            <div class="kalamun-card_progress not-started"><button>Start <span class="icon-right"></span></button></div>
+                        <?php }
+                        ?>
+                    </a>
                 </div>
             </div>
         </div>
