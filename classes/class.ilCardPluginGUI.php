@@ -258,7 +258,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             //$permalink = "/goto.php?target=file_" . $ref_id . "_download";
         } elseif ($type == "sahs") {
             $this->ctrl->setParameterByClass("ilSAHSPresentationGUI", "ref_id", $ref_id);
-            $permalink = $this->ctrl->getLinkTargetByClass("ilSAHSPresentationGUI", "view");
+            $permalink = $this->ctrl->getLinkTargetByClass("ilSAHSPresentationGUI", "");
             //$permalink = "/ilias.php?baseClass=ilSAHSPresentationGUI&ref_id=" . $ref_id . "";
         } elseif ($type == "htlm") {
             $this->ctrl->setParameterByClass("ilHTLMPresentationGUI", "ref_id", $ref_id);
