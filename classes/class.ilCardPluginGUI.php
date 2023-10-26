@@ -334,16 +334,16 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     <a href="<?= $permalink; ?>" title="<?= addslashes($title); ?>">
                         <?php
                         if (!empty($lp_downloaded)) { ?>
-                            <div class="kalamun-card_progress downloaded completed"><?= $this->plugin->txt('downloaded'); ?></div>
+                            <div class="kalamun-card_progress downloaded completed"><button class="outlined"><?= $this->plugin->txt('downloaded'); ?> <span class="icon-right"></span></button></div>
                         <?php }
                         elseif (!empty($lp_completed)) { ?>
-                            <div class="kalamun-card_progress completed"><?= $this->plugin->txt('completed'); ?></div>
+                            <div class="kalamun-card_progress completed"><button class="outlined"><?= $this->plugin->txt('completed'); ?> <span class="icon-right"></span></button></div>
                         <?php }
                         elseif (!empty($lp_in_progress)) { ?>
-                            <div class="kalamun-card_progress in-progress"><?= $this->plugin->txt('in_progress'); ?></div>
+                            <div class="kalamun-card_progress in-progress"><button><?= $this->plugin->txt('in_progress'); ?> <span class="icon-right"></span></button></div>
                         <?php }
                         elseif (!empty($lp_failed)) { ?>
-                            <div class="kalamun-card_progress failed"><?= $this->plugin->txt('failed'); ?></div>
+                            <div class="kalamun-card_progress failed"><button class="outlined"><?= $this->plugin->txt('failed'); ?> <span class="icon-right"></span></button></div>
                         <?php }
                         else { ?>
                             <div class="kalamun-card_progress not-started"><button>Start <span class="icon-right"></span></button></div>
