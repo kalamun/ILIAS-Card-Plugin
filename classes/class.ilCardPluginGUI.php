@@ -245,8 +245,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $title = !empty($a_properties['title']) ? $a_properties['title'] : $obj->getTitle();
         $description = !empty($a_properties['description']) ? $a_properties['description'] : $obj->getDescription();
         $tile_image = $this->object->commonSettings()->tileImage()->getByObjId($obj_id);
-        
-        /* TODO: find a proper way to get the permalink -> maybe with $this->ctrl->getLinkTarget */
+        $typical_learning_time = ilMDEducational::_getTypicalLearningTimeSeconds($obj_id);
+
         $permalink = "";
         if ($type == "lm") {
             $this->ctrl->setParameterByClass("ilLMPresentationGUI", "ref_id", $ref_id);
@@ -292,6 +292,19 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $lp_failed = !empty(ilLPStatus::_lookupFailedForObject($obj_id, [$this->user->getId()]));
         $lp_downloaded = $lp['visits'] > 0 && $type == "file";
 
+        $nice_spent_minutes = gmdate("H:i",($lp['spent_seconds']));
+        $nice_learning_time = gmdate("H:i", $typical_learning_time);
+
+        if( empty( $lp_percent ) && $lp_completed) {
+            $lp_percent = 100;
+        }
+        if( empty( $lp_percent ) && !empty($typical_learning_time)) {
+            $lp_percent = round(100 / $typical_learning_time * $lp['spent_seconds']);
+        }
+        if( empty( $lp_percent ) && $lp_in_progress) {
+            $lp_percent = 50;
+        }
+
         ob_start();
         ?>
         <div class="kalamun-card" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
@@ -300,6 +313,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             } ?>
             <div class="kalamun-card_inner">
                 <div class="kalamun-card_image">
+                    <?= $typical_learning_time ? '<div class="kalamun-card_learning-time"><span class="icon-clock"></span> ' . $nice_learning_time . '</div>' : ''; ?>
                     <?= ($tile_image->exists() ? '<a href="' . $permalink . '" title="' . addslashes($title) . '"><img src="' . $tile_image->getFullPath() . '"></a>' : ''); ?>
                     <?php
                     if ($type == "file") {
@@ -310,8 +324,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             </svg>
                         </a>
                         <?php
-                    }
-                    elseif ($type == "tst") {
+                    } elseif ($type == "tst") {
                         ?>
                         <a href="<?= $permalink; ?>" title="<?= addslashes($title); ?>">
                             <svg height="30px" viewBox="0 0 24 24" width="30px">
@@ -319,6 +332,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             </svg>
                         </a>
                         <?php
+                    } else {
+                        ?><div class="kalamun-card_progressbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
                     }
                     ?>
                 </div>

@@ -28,21 +28,52 @@
 }
 .kalamun-card .kalamun-card_inner {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 0.5em;
-    border: 1px solid var(--color-xlight-grey);
     height: 100%;
     background: var(--color-white);
 }
 .kalamun-card .kalamun-card_image {
     position: relative;
-    background: var(--color-xlight-grey);
+    width: 100%;
+    height: auto;
+    aspect-ratio: 20 / 9;
+    background: var(--color-grey);
 }
 .kalamun-card .kalamun-card_image img {
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    height: auto;
     object-fit: cover;
+    aspect-ratio: 20 / 9;
     display: block;
+}
+
+.kalamun-card .kalamun-card_progressbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    background: var(--color-grey);
+}
+.kalamun-card .kalamun-card_progressbar .dci-meter .dci-meter-value {
+    bottom: 0 !important;
+    line-height: 100%;
+    z-index: 100;
+    font-size: var(--font-size-xxxsmall);
+}
+.kalamun-card .kalamun-card_progressbar .dci-meter[data-progress="0"] .dci-meter-value {
+    display: none;
+}
+
+.kalamun-card .kalamun-card_learning-time {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 10px 15px;
+    color: var(--color-white);
+    text-shadow: 0 0 5px var(--color-black);
+    pointer-events: none;
 }
 
 .kalamun-card .kalamun-card_body {
@@ -93,19 +124,6 @@
 }
 
 
-.kalamun-card .kalamun-card_inner {
-    flex-direction: column;
-}
-.kalamun-card .kalamun-card_image {
-    width: 100%;
-    height: auto;
-}
-.kalamun-card .kalamun-card_image img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    aspect-ratio: 20 / 9;
-}
 .kalamun-card .kalamun-card_body > div {
     text-align: center;
 }
