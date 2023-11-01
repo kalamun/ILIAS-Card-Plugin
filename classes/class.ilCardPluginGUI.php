@@ -292,10 +292,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $lp_failed = !empty(ilLPStatus::_lookupFailedForObject($obj_id, [$this->user->getId()]));
         $lp_downloaded = $lp['visits'] > 0 && $type == "file";
 
-        $nice_spent_minutes = gmdate("H:i",($lp['spent_seconds']));
-        $nice_learning_time = gmdate("H:i", $typical_learning_time);
+        $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds']))) . " mins";
+        $nice_learning_time = str_replace("00:", "", gmdate("H:i", $typical_learning_time)) . " mins";
 
-        if( empty( $lp_percent ) && $lp_completed) {
+        if( empty( $lp_percent ) && ($lp_completed || $lp_downloaded)) {
             $lp_percent = 100;
         }
         if( empty( $lp_percent ) && !empty($typical_learning_time)) {
@@ -314,6 +314,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             <div class="kalamun-card_inner">
                 <div class="kalamun-card_image">
                     <?= $typical_learning_time ? '<div class="kalamun-card_learning-time"><span class="icon-clock"></span> ' . $nice_learning_time . '</div>' : ''; ?>
+                    <?= ($lp_completed || $lp_downloaded) ? '<div class="kalamun-card_status"><span class="icon-done"></span></div>' : ''; ?>
                     <?= ($tile_image->exists() ? '<a href="' . $permalink . '" title="' . addslashes($title) . '"><img src="' . $tile_image->getFullPath() . '"></a>' : ''); ?>
                     <?php
                     if ($type == "file") {

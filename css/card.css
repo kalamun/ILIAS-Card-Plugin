@@ -48,6 +48,21 @@
     display: block;
 }
 
+.kalamun-card .kalamun-card_status {
+    position: absolute;
+    top: 15%;
+    right: 4%;
+    border: 1.5px solid var(--color-white);
+    color: var(--color-white);
+    border-radius: 2em;
+    display: block;
+    line-height: 1;
+    font-size: var(--font-size-xxsmall);
+    padding: 0.1em;
+    text-shadow: 0 0 5px var(--color-black);
+    box-shadow: 0 0 5px #0006, inset 0 0 5px #0006;
+}
+
 .kalamun-card .kalamun-card_progressbar {
     position: absolute;
     top: 0;
@@ -61,9 +76,6 @@
     line-height: 100%;
     z-index: 100;
     font-size: var(--font-size-xxxsmall);
-}
-.kalamun-card .kalamun-card_progressbar .dci-meter[data-progress="0"] .dci-meter-value {
-    display: none;
 }
 
 .kalamun-card .kalamun-card_learning-time {
