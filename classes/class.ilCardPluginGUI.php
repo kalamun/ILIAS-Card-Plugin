@@ -272,6 +272,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $ref_id);
             $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
             //$permalink = "/ilias.php?ref_id=" . $ref_id . "&cmd=view&cmdClass=ilrepositorygui&cmdNode=wl&baseClass=ilrepositorygui";
+        } elseif ($type == "xjit") {
+            $this->ctrl->setParameterByClass("ilobjcontentpagegui", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilobjcontentpagegui", "view");
         } else {
             $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $ref_id);
             $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
