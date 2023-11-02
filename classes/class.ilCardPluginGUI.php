@@ -327,7 +327,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 <div class="kalamun-card_image">
                     <?= $typical_learning_time ? '<div class="kalamun-card_learning-time"><span class="icon-clock"></span> ' . $nice_learning_time . '</div>' : ''; ?>
                     <?= ($lp_completed || $lp_downloaded) ? '<div class="kalamun-card_status"><span class="icon-done"></span></div>' : ''; ?>
-                    <?= ($tile_image->exists() ? '<a href="' . $permalink . '" title="' . addslashes($title) . '"><img src="' . $tile_image->getFullPath() . '"></a>' : ''); ?>
                     <?php
                     if ($type == "file") {
                         ?>
@@ -349,6 +348,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         ?><div class="kalamun-card_progressbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
                     }
                     ?>
+                    <?= ($tile_image->exists() ? '<a href="' . $permalink . '" title="' . addslashes($title) . '"><img src="' . $tile_image->getFullPath() . '" class="kalamun-card_thumbnail" /></a>' : '<span class="kalamun-card_thumbnail"></span>'); ?>
                 </div>
                 <div class="kalamun-card_body">
                     <div class="kalamun-card_title">
