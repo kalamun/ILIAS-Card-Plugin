@@ -287,13 +287,22 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         2 = completed;
         3 = failed;
          */
-        $lp = ilLearningProgress::_getProgress($this->user->getId(), $obj_id);
-        $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
-        $lp_percent = ilLPStatus::_lookupPercentage($obj_id, $this->user->getId());
-        $lp_in_progress = !empty(ilLPStatus::_lookupInProgressForObject($obj_id, [$this->user->getId()]));
-        $lp_completed = ilLPStatus::_hasUserCompleted($obj_id, $this->user->getId());
-        $lp_failed = !empty(ilLPStatus::_lookupFailedForObject($obj_id, [$this->user->getId()]));
-        $lp_downloaded = $lp['visits'] > 0 && $type == "file";
+        if ($type == "xjit") {
+            $lp = ['spent_seconds' => 0];
+            $lp_status = 0;
+            $lp_completed = false;
+            $lp_in_progress = false;
+            $lp_failed = false;
+            $lp_downloaded = false;
+        } else {
+            $lp = ilLearningProgress::_getProgress($this->user->getId(), $obj_id);
+            $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
+            $lp_percent = ilLPStatus::_lookupPercentage($obj_id, $this->user->getId());
+            $lp_in_progress = !empty(ilLPStatus::_lookupInProgressForObject($obj_id, [$this->user->getId()]));
+            $lp_completed = ilLPStatus::_hasUserCompleted($obj_id, $this->user->getId());
+            $lp_failed = !empty(ilLPStatus::_lookupFailedForObject($obj_id, [$this->user->getId()]));
+            $lp_downloaded = $lp['visits'] > 0 && $type == "file";
+        }
 
         $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds']))) . " mins";
         $nice_learning_time = str_replace("00:", "", gmdate("H:i", $typical_learning_time)) . " mins";
