@@ -366,7 +366,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         </a>
                         <?php
                     } else {
-                        ?><div class="kalamun-card_progressbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
+                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
                     }
                     ?>
                     <?= ($tile_image->exists() ? '<a href="' . $permalink . '" title="' . addslashes($title) . '"><img src="' . $tile_image->getFullPath() . '" class="kalamun-card_thumbnail" /></a>' : '<span class="kalamun-card_thumbnail"></span>'); ?>
