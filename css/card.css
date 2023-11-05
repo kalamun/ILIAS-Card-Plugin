@@ -50,7 +50,7 @@
 
 .kalamun-card .kalamun-card_status {
     position: absolute;
-    top: 15%;
+    top: 22%;
     right: 4%;
     border: 1.5px solid var(--color-white);
     color: var(--color-white);
@@ -58,9 +58,12 @@
     display: block;
     line-height: 1;
     font-size: var(--font-size-xxsmall);
-    padding: 0.1em;
+    padding: 0.2em;
     text-shadow: 0 0 5px var(--color-black);
     box-shadow: 0 0 5px #0006, inset 0 0 5px #0006;
+}
+.kalamun-card .kalamun-card_status .score {
+    padding: 0 0.2em;
 }
 
 .kalamun-card .kalamun-card_progressbar {
