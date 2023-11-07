@@ -347,7 +347,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 <div class="kalamun-card_image">
                     <?= $typical_learning_time ? '<div class="kalamun-card_learning-time"><span class="icon-clock"></span> ' . $nice_learning_time . '</div>' : ''; ?>
                     <?= (!$has_tests && ($lp_completed || $lp_downloaded)) ? '<div class="kalamun-card_status"><span class="icon-done"></span></div>' : ''; ?>
-                    <?= ($has_tests && count($lp_scores) > 0) ? '<div class="kalamun-card_status kalamun-card_scores"><span class="score">' . join('</span><span class="score">', $lp_scores) . '</span><span class="icon-' . ($lp_passed ? 'done' : 'close') . '"></span></div>' : ''; ?>
+                    <?= ($has_tests && count($lp_scores) > 0) ? '<div class="kalamun-card_status kalamun-card_scores">' . (count($lp_scores) > 0 ? '<span class="score">' . join('</span><span class="score">', $lp_scores) . '</span>' : '') . '<span class="icon-' . ($lp_passed ? 'done' : 'close') . '"></span></div>' : ''; ?>
                     <?php
                     if ($type == "file") {
                         ?>
