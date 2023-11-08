@@ -384,7 +384,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     ?>
                     <a href="<?= $permalink; ?>" title="<?= addslashes($title); ?>">
                         <?php
-                        if (!empty($lp_downloaded)) { ?>
+                        if (!$has_progress) { ?>
+                            <div class="kalamun-card_noprogress"><button><?= $this->plugin->txt('open'); ?> <span class="icon-right"></span></button></div>
+                        <?php }
+                        elseif (!empty($lp_downloaded)) { ?>
                             <div class="kalamun-card_progress downloaded completed"><button class="outlined"><?= $this->plugin->txt('downloaded'); ?> <span class="icon-right"></span></button></div>
                         <?php }
                         elseif (!empty($lp_completed)) { ?>
@@ -397,7 +400,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             <div class="kalamun-card_progress failed"><button class="outlined"><?= $this->plugin->txt('failed'); ?> <span class="icon-right"></span></button></div>
                         <?php }
                         else { ?>
-                            <div class="kalamun-card_progress not-started"><button>Start <span class="icon-right"></span></button></div>
+                            <div class="kalamun-card_progress not-started"><button><?= $this->plugin->txt('start'); ?> <span class="icon-right"></span></button></div>
                         <?php }
                         ?>
                     </a>

@@ -115,12 +115,11 @@
     text-align: center;
 }
 
-.kalamun-card .kalamun-card_progress {
+.kalamun-card .kalamun-card_progress,
+.kalamun-card .kalamun-card_noprogress {
     font-size: var(--font-size-xsmall);
     font-weight: bold;
     color: var(--color-blue);
-}
-.kalamun-card .kalamun-card_progress.not-started {
 }
 
 /* file */
