@@ -337,6 +337,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_percent = 50;
         }
 
+        $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
+
         ob_start();
         ?>
         <div class="kalamun-card" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
@@ -365,7 +367,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             </svg>
                         </a>
                         <?php
-                    } else {
+                    } elseif ($has_progress) {
                         ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
                     }
                     ?>
