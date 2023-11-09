@@ -53,15 +53,21 @@
     position: absolute;
     top: 22%;
     right: 4%;
-    border: 1.5px solid var(--color-white);
     color: var(--color-white);
     border-radius: 2em;
     display: block;
     line-height: 1;
-    font-size: var(--font-size-xxsmall);
+    font-size: var(--font-size-small);
     padding: 0.2em;
     text-shadow: 0 0 5px var(--color-black);
-    box-shadow: 0 0 5px #0006, inset 0 0 5px #0006;
+    box-shadow: 0 0 5px #0006;
+    background: var(--color-green);
+}
+.kalamun-card .kalamun-card_status:is(.result-unknown, .result-failed) {
+    background: var(--color-red);
+}
+.kalamun-card .kalamun-card_status:is(.result-passed) {
+    background: var(--color-green);
 }
 .kalamun-card .kalamun-card_status .score {
     padding: 0 0.2em;

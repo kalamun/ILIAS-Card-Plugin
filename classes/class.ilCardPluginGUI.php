@@ -298,6 +298,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_failed = false;
             $lp_downloaded = false;
             $lp_progresses = [];
+            $lp_success_status = "unknown";
         } else {
             $lp = ilLearningProgress::_getProgress($this->user->getId(), $obj_id);
             $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
@@ -307,26 +308,27 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_failed = !empty(ilLPStatus::_lookupFailedForObject($obj_id, [$this->user->getId()]));
             $lp_downloaded = $lp['visits'] > 0 && $type == "file";
             $has_tests = false;
-            $lp_passed = false;
+            $lp_success_status = "unknown";
             $lp_scores = [];
 
             $lp_progresses = [];
             if (class_exists("dciCourse")) {
                 $lp_progresses = dciCourse::get_obj_progress($obj_id, $this->user->getId());
                 if (count($lp_progresses) > 0) {
-                    $has_tests = true;
                     $lp_passed = true;
+                    $has_tests = true;
                     foreach($lp_progresses as $progress) {
+                        if ($progress->c_raw == false) continue;
                         $lp_scores[] = $progress->c_raw;
-                        if($progress->success_status !== "passed") $lp_passed = false;
+                        $lp_success_status = $progress->success_status;
                     }
                 }
             }
         }
-
+        
         $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds']))) . " mins";
         $nice_learning_time = str_replace("00:", "", gmdate("H:i", $typical_learning_time)) . " mins";
-
+        
         if( empty( $lp_percent ) && ($lp_completed || $lp_downloaded)) {
             $lp_percent = 100;
         }
@@ -336,9 +338,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if( empty( $lp_percent ) && $lp_in_progress) {
             $lp_percent = 50;
         }
-
+        
         $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
-
+        
         ob_start();
         ?>
         <div class="kalamun-card" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
@@ -349,8 +351,23 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 <div class="kalamun-card_image">
                     <?= $typical_learning_time ? '<div class="kalamun-card_learning-time"><span class="icon-clock"></span> ' . $nice_learning_time . '</div>' : ''; ?>
                     <?= (!$has_tests && ($lp_completed || $lp_downloaded)) ? '<div class="kalamun-card_status"><span class="icon-done"></span></div>' : ''; ?>
-                    <?= ($has_tests && count($lp_scores) > 0) ? '<div class="kalamun-card_status kalamun-card_scores">' . (count($lp_scores) > 0 ? '<span class="score">' . join('</span><span class="score">', $lp_scores) . '</span>' : '') . '<span class="icon-' . ($lp_passed ? 'done' : 'close') . '"></span></div>' : ''; ?>
                     <?php
+                    if ($has_tests && count($lp_scores) > 0) {
+                        ?>
+                        <div class="kalamun-card_status kalamun-card_scores result-<?= $lp_success_status; ?>">
+                            <?php
+                            if (count($lp_scores) > 0) {
+                                foreach ($lp_scores as $score) {
+                                    if ($score == "") continue;
+                                    ?><span class="score"><?= $score; ?></span><?php
+                                }
+                            }
+                            ?>
+                            <span class="icon-<?= ($lp_success_status === "passed" ? 'done' : 'close'); ?>"></span>
+                        </div>
+                        <?php
+                    }
+
                     if ($type == "file") {
                         ?>
                         <a href="<?= $permalink; ?>" title="<?= addslashes($title); ?>">
