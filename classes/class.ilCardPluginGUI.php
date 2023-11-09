@@ -326,8 +326,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             }
         }
         
-        $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds']))) . " mins";
-        $nice_learning_time = str_replace("00:", "", gmdate("H:i", $typical_learning_time)) . " mins";
+        $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds']))) . " min";
+        $nice_learning_time = str_replace("00:", "", gmdate("H:i", $typical_learning_time)) . " min";
         
         if( empty( $lp_percent ) && ($lp_completed || $lp_downloaded)) {
             $lp_percent = 100;
