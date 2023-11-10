@@ -338,6 +338,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if( empty( $lp_percent ) && $lp_in_progress) {
             $lp_percent = 50;
         }
+        if( $has_tests && $lp_status !== "unknown") {
+            $lp_percent = 100;
+        }
         
         $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
         

@@ -4,6 +4,7 @@ edit_input_field#:#Edit Card
 downloaded#:#Downloaded
 in_progress#:#In progress
 completed#:#Completed
+failed#:#Failed
 mandatory#:#Mandatory to be completed
 start#:#Start
 open#:#Open
