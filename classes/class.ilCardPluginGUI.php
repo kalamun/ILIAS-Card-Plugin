@@ -417,7 +417,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             <div class="kalamun-card_progress in-progress"><button><?= $this->plugin->txt('in_progress'); ?> <span class="icon-right"></span></button></div>
                         <?php }
                         elseif (!empty($lp_failed)) { ?>
-                            <div class="kalamun-card_progress failed"><button class="outlined"><?= $this->plugin->txt('failed'); ?> <span class="icon-right"></span></button></div>
+                            <div class="kalamun-card_progress failed"><button><?= $this->plugin->txt('failed'); ?> <span class="icon-right"></span></button></div>
                         <?php }
                         else { ?>
                             <div class="kalamun-card_progress not-started"><button><?= $this->plugin->txt('start'); ?> <span class="icon-right"></span></button></div>
