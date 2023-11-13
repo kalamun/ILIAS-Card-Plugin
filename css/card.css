@@ -48,6 +48,12 @@
     aspect-ratio: 20 / 9;
     display: block;
 }
+.kalamun-card[data-layout="wide"] .kalamun-card_image {
+    aspect-ratio: 40 / 9;
+}
+.kalamun-card[data-layout="wide"] .kalamun-card_image .kalamun-card_thumbnail {
+    aspect-ratio: 40 / 9;
+}
 
 .kalamun-card .kalamun-card_status {
     position: absolute;
@@ -84,6 +90,7 @@
     width: 100%;
     background: var(--color-white);
     padding-bottom: 6px;
+    min-height: 1.1em;
 }
 .kalamun-card .kalamun-card_prgbar .dci-meter .dci-meter-value {
     bottom: 0 !important;
@@ -111,6 +118,7 @@
     flex-basis: 100%;
     word-wrap: break-word;
     line-height: 1.2;
+    color: var(--color-black);
 }
 .kalamun-card .kalamun-card_title a {
     font-weight: normal;
@@ -121,8 +129,13 @@
     color: var(--color-grey);
     font-size: 0.8em;
 }
-.kalamun-card .kalamun-card_body a {
-    text-align: center;
+.kalamun-card .kalamun-card_cta {
+    text-align: center !important;
+}
+.kalamun-card[data-layout="wide"] .kalamun-card_cta {
+    position: absolute;
+    bottom: 28px;
+    right: 10px;
 }
 
 .kalamun-card .kalamun-card_progress,
@@ -154,4 +167,8 @@
 }
 .kalamun-card .kalamun-card_progress {
     margin-top: 0.5em;
+}
+
+.kalamun-card .kalamun-card_timing {
+    color: var(--color-black);
 }

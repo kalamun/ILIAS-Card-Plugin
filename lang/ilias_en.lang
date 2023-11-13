@@ -8,3 +8,11 @@ failed#:#Not passed
 mandatory#:#Mandatory to be completed
 start#:#Start
 open#:#Open
+layout#:#Layout
+square#:#Square
+wide#:#Wide
+starting_date#:#Starting date
+duration#:#Duration
+opens_10_minutes_before#:#Opens 10 minutes before
+ended#:#Ended
+join_call#:#Join the call

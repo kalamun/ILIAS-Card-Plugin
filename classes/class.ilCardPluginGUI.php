@@ -56,7 +56,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             default:
                 // perform valid commands
                 $cmd = $this->ctrl->getCmd();
-                if (in_array($cmd, array("create", "save", "edit", "update", "cancel"))) {
+                if (in_array($cmd, array("create", "save", "edit", "update", "cancel", "downloadFile"))) {
                     $this->$cmd();
                 }
                 break;
@@ -160,6 +160,13 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $input_ref_if->setRequired(true);
         $input_ref_if->setOptions($select_options);
         $form->addItem($input_ref_if);
+
+        // thumbnail
+        $thumbnail = new ilImageFileInputGUI($this->lng->txt("thumbnail"), 'thumbnail');
+        $thumbnail->setAllowDeletion(true);
+        $thumbnail->setRequired(false);
+
+        $form->addItem($thumbnail);
         
         // title
         $input_title = new ilTextInputGUI($this->lng->txt("title"), 'title');
@@ -175,8 +182,25 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $input_description->setRequired(false);
         $form->addItem($input_description);
 
+        // dates
+        $starting_date = new ilDateTimeInputGUI($this->lng->txt("starting_date"), 'starting_date');
+        $starting_date->setShowTime(true);
+        $starting_date->setRequired(false);
+        $form->addItem($starting_date);
+
+        $duration = new ilDurationInputGUI($this->lng->txt("duration"), 'duration');
+        $duration->setRequired(false);
+        $form->addItem($duration);
+
+        // layout
+        $select_layout = new ilSelectInputGUI($this->plugin->txt("layout"));
+        $select_layout->setPostVar("layout");
+        $select_layout->setOptions(["square" => $this->plugin->txt("square"), "wide" => $this->plugin->txt("wide")]);
+        $select_layout->setRequired(true);
+        $form->addItem($select_layout);
+
         // mandatory
-        $input_mandatory = new ilCheckBoxInputGUI($this->lng->txt("mandatory"), 'mandatory');
+        $input_mandatory = new ilCheckBoxInputGUI($this->lng->txt("mandatory", 'mandatory'));
         $input_mandatory->setRequired(false);
         $form->addItem($input_mandatory);
         
@@ -190,6 +214,20 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $input_ref_if->setValue($prop['ref_id']);
             $input_title->setValue($prop['title']);
             $input_description->setValue($prop['description']);
+            $starting_date->setDate(new ilDateTime($prop['starting_date'], IL_CAL_DATETIME));
+            $duration->setHours(explode(":", $prop['duration'])[0]);
+            $duration->setMinutes(explode(":", $prop['duration'])[1]);
+            $select_layout->setValue($prop['layout']);
+
+            if (!emptY($prop['thumbnail'])) {
+                $fileObj = new ilObjFile($prop['thumbnail'], false);
+                if (!empty($fileObj)) {
+                    $_SESSION[__CLASS__]['allowedFiles'][$fileObj->getId()] = true;
+                    $this->ctrl->setParameter($this, 'id', $fileObj->getId());
+                    $image_url = $this->ctrl->getLinkTargetByClass(array('ilUIPluginRouterGUI', 'ilCardPluginGUI'), 'downloadFile');
+                    $thumbnail->setImage($image_url);
+                }
+            }
 
             $form->addCommandButton("update", $this->lng->txt("save"));
             $form->addCommandButton("cancel", $this->lng->txt("cancel"));
@@ -208,10 +246,41 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $properties['ref_id'] = $form->getInput('ref_id');
             $properties['title'] = $form->getInput('title');
             $properties['description'] = $form->getInput('description');
+            $properties['layout'] = $form->getInput('layout');
+            $properties['starting_date'] = $form->getInput('starting_date');
+            $properties['duration'] = implode(":", $form->getInput('duration'));
 
             $mandatory = $form->getInput('mandatory');
             $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
             dciCourse::update_mandatory_object($root_course['obj_id'], $properties['ref_id'], $mandatory);
+
+            foreach(["thumbnail"] as $key) {
+                if (!empty($_FILES[$key]["name"])) {
+                    $old_file_id = empty($properties[$key]) ? null : $properties[$key];
+                    
+                    $fileObj = new ilObjFile((int) $old_file_id, false);
+                    $fileObj->setType("file");
+                    $fileObj->setTitle($_FILES[$key]["name"]);
+                    $fileObj->setDescription("");
+                    $fileObj->setFileName($_FILES[$key]["name"]);
+                    $fileObj->setMode("filelist");
+                    if (empty($old_file_id)) {
+                        $fileObj->create();
+                    } else {
+                        $fileObj->update();
+                    }
+    
+                    // upload file to filesystem
+                    if ($_FILES[$key]["tmp_name"] !== "") {
+                        $fileObj->getUploadFile(
+                            $_FILES[$key]["tmp_name"],
+                            $_FILES[$key]["name"]
+                        );
+                    }
+    
+                    $properties[$key] = $fileObj->getId();
+                }
+            }
 
             if ($a_create) {
                 return $this->createElement($properties);
@@ -245,7 +314,37 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $type = $obj->getType();
         $title = !empty($a_properties['title']) ? $a_properties['title'] : $obj->getTitle();
         $description = !empty($a_properties['description']) ? $a_properties['description'] : $obj->getDescription();
-        $tile_image = $this->object->commonSettings()->tileImage()->getByObjId($obj_id);
+        $layout = !empty($a_properties['layout']) ? $a_properties['layout'] : "square";
+        $starting_date = !empty($a_properties['starting_date']) ? $a_properties['starting_date'] : false;
+        $duration = !empty($a_properties['duration']) ? explode(":", $a_properties['duration']) : false;
+
+        $starting_date_timestamp = false;
+        $ending_date_timestamp = false;
+        if (!empty($starting_date)) {
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', $starting_date);
+            $starting_date_timestamp = $date->getTimestamp();
+
+            if (!empty($duration) && !empty($starting_date_timestamp)) {
+                $ending_date_timestamp = $starting_date_timestamp + ($duration[0] * 60 * 60) + ($duration[1] * 60);
+            }
+        }
+
+        // thumbnail
+        $thumbnail_url = "";
+        if (!emptY($a_properties['thumbnail'])) {
+            $fileObj = new ilObjFile($a_properties['thumbnail'], false);
+            if (!empty($fileObj)) {
+                $_SESSION[__CLASS__]['allowedFiles'][$fileObj->getId()] = true;
+                $this->ctrl->setParameter($this, 'id', $fileObj->getId());
+                $thumbnail_url = $this->ctrl->getLinkTargetByClass(array('ilUIPluginRouterGUI', 'ilCardPluginGUI'), 'downloadFile');
+            }
+        } else {
+            $tile_image = $this->object->commonSettings()->tileImage()->getByObjId($obj_id);
+            $thumbnail_url = $tile_image->exists() ? $tile_image->getFullPath() : "";
+        }
+
+
+        // learning progress
         $typical_learning_time = ilMDEducational::_getTypicalLearningTimeSeconds($obj_id);
 
         $permalink = "";
@@ -274,12 +373,20 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
             //$permalink = "/ilias.php?ref_id=" . $ref_id . "&cmd=view&cmdClass=ilrepositorygui&cmdNode=wl&baseClass=ilrepositorygui";
         } elseif ($type == "xjit") {
-            $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $ref_id);
-            $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
+            $this->ctrl->setParameterByClass("ilObjPluginDispatchGUI", "ref_id", $ref_id);
+            $this->ctrl->setParameterByClass("ilObjPluginDispatchGUI", "forwardCmd", "showContents");
+            $permalink = $this->ctrl->getLinkTargetByClass("ilObjPluginDispatchGUI", "forward");
+            ///ilias.php?baseClass=ilObjPluginDispatchGUI&cmd=forward&ref_id=102&forwardCmd=showContents
         } else {
             $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $ref_id);
             $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
             //$permalink = "/ilias.php?ref_id=87&cmdClass=ilrepositorygui&cmdNode=wm&baseClass=ilrepositorygui";
+        }
+
+        if (!empty($starting_date_timestamp) && time() < $starting_date_timestamp - (60 * 10)) {
+            $permalink = "";
+        } elseif (!empty($ending_date_timestamp) && time() > $ending_date_timestamp + (60 * 10)) {
+            $permalink = "";
         }
 
         /* progress statuses:
@@ -310,7 +417,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $has_tests = false;
             $lp_success_status = "unknown";
             $lp_scores = [];
-
+            
             $lp_progresses = [];
             if (class_exists("dciCourse")) {
                 $lp_progresses = dciCourse::get_obj_progress($obj_id, $this->user->getId());
@@ -343,10 +450,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         }
         
         $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
-        
+
         ob_start();
         ?>
-        <div class="kalamun-card" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
+        <div class="kalamun-card" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
             <?php if ($this->ctrl->getCmd() == "edit") {
                 ?><div class="kalamun-card_prevent-link"></div><?php
             } ?>
@@ -389,46 +496,95 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         <?php
                     } elseif ($has_progress) {
                         ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
+                    } else {
+                        ?><div class="kalamun-card_prgbar empty"></div><?php
                     }
                     ?>
-                    <?= ($tile_image->exists() ? '<a href="' . $permalink . '" title="' . addslashes($title) . '"><img src="' . $tile_image->getFullPath() . '" class="kalamun-card_thumbnail" /></a>' : '<span class="kalamun-card_thumbnail"></span>'); ?>
+                    <?= (!empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
+                        <?= (!empty($thumbnail_url) ? '<img src="' . $thumbnail_url . '" class="kalamun-card_thumbnail" />' : '<span class="kalamun-card_thumbnail"></span>'); ?>
+                    <?= (!empty($permalink)) ? '</a>' : ''; ?>
                 </div>
                 <div class="kalamun-card_body">
                     <div class="kalamun-card_title">
-                        <a href="<?= $permalink; ?>" title="<?= addslashes($title); ?>"><?= $title; ?></a>
+                        <?= (!empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
+                            <?= $title; ?>
+                        <?= (!empty($permalink)) ? '</a>' : ''; ?>
                     </div>
                     <?php
                     if (!empty($description)) { ?>
                         <div class="kalamun-card_description"><?= $description; ?></div>
                     <?php }
                     ?>
-                    <a href="<?= $permalink; ?>" title="<?= addslashes($title); ?>">
-                        <?php
-                        if (!$has_progress) { ?>
-                            <div class="kalamun-card_noprogress"><button><?= $this->plugin->txt('open'); ?> <span class="icon-right"></span></button></div>
-                        <?php }
-                        elseif (!empty($lp_downloaded)) { ?>
-                            <div class="kalamun-card_progress downloaded completed"><button class="outlined"><?= $this->plugin->txt('downloaded'); ?> <span class="icon-right"></span></button></div>
-                        <?php }
-                        elseif (!empty($lp_completed)) { ?>
-                            <div class="kalamun-card_progress completed"><button class="outlined"><?= $this->plugin->txt('completed'); ?> <span class="icon-right"></span></button></div>
-                        <?php }
-                        elseif (!empty($lp_in_progress)) { ?>
-                            <div class="kalamun-card_progress in-progress"><button><?= $this->plugin->txt('in_progress'); ?> <span class="icon-right"></span></button></div>
-                        <?php }
-                        elseif (!empty($lp_failed)) { ?>
-                            <div class="kalamun-card_progress failed"><button><?= $this->plugin->txt('failed'); ?> <span class="icon-right"></span></button></div>
-                        <?php }
-                        else { ?>
-                            <div class="kalamun-card_progress not-started"><button><?= $this->plugin->txt('start'); ?> <span class="icon-right"></span></button></div>
-                        <?php }
-                        ?>
-                    </a>
+                    <?php
+                    if (!empty($starting_date_timestamp)) { ?>
+                        <div class="kalamun-card_timing">
+                            <span class="kalamun-card_timing_date">
+                                <span class="icon-calendar"></span>
+                                <?= date("d F Y", $starting_date_timestamp); ?>
+                            </span>
+                            <span class="kalamun-card_timing_time">
+                                <span class="icon-clock"></span>
+                                <?= date("H:i", $starting_date_timestamp); ?>
+                                <?php
+                                if (!empty($ending_date_timestamp)) {
+                                    echo ' <span class="icon-arrow-right"></span> ';
+                                    echo date("H:i", $ending_date_timestamp);
+                                }
+                                ?>
+                            </span>
+                        </div>
+                    <?php }
+                    ?>
+                    <div class="kalamun-card_cta">
+                        <?= (!empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
+                            <?php
+                            if (empty($permalink)) { ?>
+                                <div class="kalamun-card_noprogress"><button class="outlined"><?= $this->plugin->txt(time() < $ending_date_timestamp ? 'opens_10_minutes_before' : 'ended'); ?></span></button></div>
+                            <?php }
+                            elseif (!$type == "xjit") { ?>
+                                <div class="kalamun-card_noprogress"><button><?= $this->plugin->txt('join_call'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            elseif (!$has_progress) { ?>
+                                <div class="kalamun-card_noprogress"><button><?= $this->plugin->txt('open'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            elseif (!empty($lp_downloaded)) { ?>
+                                <div class="kalamun-card_progress downloaded completed"><button class="outlined"><?= $this->plugin->txt('downloaded'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            elseif (!empty($lp_completed)) { ?>
+                                <div class="kalamun-card_progress completed"><button class="outlined"><?= $this->plugin->txt('completed'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            elseif (!empty($lp_in_progress)) { ?>
+                                <div class="kalamun-card_progress in-progress"><button><?= $this->plugin->txt('in_progress'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            elseif (!empty($lp_failed)) { ?>
+                                <div class="kalamun-card_progress failed"><button><?= $this->plugin->txt('failed'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            else { ?>
+                                <div class="kalamun-card_progress not-started"><button><?= $this->plugin->txt('start'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            ?>
+                        <?= (!empty($permalink)) ? '</a>' : ''; ?>
+                    </div>
                 </div>
             </div>
         </div>
         <?php
         $html = ob_get_clean();
         return $html;
+    }
+
+
+    /**
+     * download file of file lists
+     */
+    function downloadFile() : void
+    {
+        $file_id = (int) $_GET['id'];
+        if ($_SESSION[__CLASS__]['allowedFiles'][$file_id]) {
+            $fileObj = new ilObjFile($file_id, false);
+            $fileObj->sendFile();
+        } else {
+            throw new ilException('not allowed');
+        }
     }
 }
