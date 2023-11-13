@@ -428,7 +428,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         if (!empty($progress->c_max)) $has_tests = true;
                         if (!empty($progress->access_count)) $has_tests = true;
                         if ($progress->c_raw == false) continue;
-                        $lp_scores[] = $progress->c_raw;
+                        $lp_scores[] = round($progress->c_raw);
                         $lp_success_status = $progress->success_status;
                         $lp_completion_status = $progress->completion_status;
                     }
@@ -443,7 +443,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_percent = 100;
         }
         if( empty( $lp_percent ) && !empty($typical_learning_time)) {
-            $lp_percent = round(100 / $typical_learning_time * $lp['spent_seconds']);
+            $lp_percent = round(90 / $typical_learning_time * $lp['spent_seconds']);
         }
         if( empty( $lp_percent ) && $lp_in_progress) {
             $lp_percent = 50;
