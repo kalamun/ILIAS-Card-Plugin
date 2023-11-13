@@ -416,6 +416,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_downloaded = $lp['visits'] > 0 && $type == "file";
             $has_tests = false;
             $lp_success_status = "unknown";
+            $lp_completion_status = "unknown";
             $lp_scores = [];
             
             $lp_progresses = [];
@@ -423,11 +424,13 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 $lp_progresses = dciCourse::get_obj_progress($obj_id, $this->user->getId());
                 if (count($lp_progresses) > 0) {
                     $lp_passed = true;
-                    $has_tests = true;
                     foreach($lp_progresses as $progress) {
+                        if (!empty($progress->c_max)) $has_tests = true;
+                        if (!empty($progress->access_count)) $has_tests = true;
                         if ($progress->c_raw == false) continue;
                         $lp_scores[] = $progress->c_raw;
                         $lp_success_status = $progress->success_status;
+                        $lp_completion_status = $progress->completion_status;
                     }
                 }
             }
@@ -445,7 +448,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if( empty( $lp_percent ) && $lp_in_progress) {
             $lp_percent = 50;
         }
-        if( $has_tests && $lp_status !== "unknown") {
+        if( $has_tests && $lp_completed) {
             $lp_percent = 100;
         }
         

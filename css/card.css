@@ -90,13 +90,21 @@
     width: 100%;
     background: var(--color-white);
     padding-bottom: 6px;
-    min-height: 1.1em;
 }
 .kalamun-card .kalamun-card_prgbar .dci-meter .dci-meter-value {
     bottom: 0 !important;
     line-height: 100%;
     z-index: 100;
     font-size: var(--font-size-xxxsmall);
+}
+.kalamun-card .kalamun-card_prgbar.empty::after {
+    font-size: var(--font-size-xxsmall);
+    content: '';
+    display: block;
+    height: 1em;
+    width: 100%;
+    border-radius: 1em;
+    background-color: var(--color-light-grey);
 }
 
 .kalamun-card .kalamun-card_learning-time {
