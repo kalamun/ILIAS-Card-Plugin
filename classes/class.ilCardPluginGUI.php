@@ -442,9 +442,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if( empty( $lp_percent ) && ($lp_completed || $lp_downloaded)) {
             $lp_percent = 100;
         }
-        if( empty( $lp_percent ) && !empty($typical_learning_time)) {
-            $lp_percent = round(90 / $typical_learning_time * $lp['spent_seconds']);
-        }
+//        if( empty( $lp_percent ) && !empty($typical_learning_time)) {
+//            $lp_percent = round(90 / $typical_learning_time * $lp['spent_seconds']);
+//        }
         if( empty( $lp_percent ) && $lp_in_progress) {
             $lp_percent = 50;
         }
