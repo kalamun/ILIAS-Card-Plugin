@@ -63,12 +63,12 @@
     border-radius: 2em;
     display: block;
     line-height: 1;
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-normal);
     padding: 0.2em;
     text-shadow: 0 0 5px var(--color-black);
     box-shadow: 0 0 5px #0006;
     background: var(--color-green);
-    border: 2px solid;
+    border: 3px solid;
 }
 .kalamun-card .kalamun-card_status:is(.result-unknown, .result-failed) {
     background: var(--color-red);
