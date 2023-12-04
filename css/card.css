@@ -153,23 +153,6 @@
     color: var(--color-blue);
 }
 
-/* file */
-.kalamun-card[data-type="file"] .kalamun-card_image {
-    width: 5em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* test */
-.kalamun-card[data-type="tst"] .kalamun-card_image {
-    width: 5em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
 .kalamun-card .kalamun-card_body > div {
     text-align: left;
 }
