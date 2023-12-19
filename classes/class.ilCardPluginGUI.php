@@ -407,14 +407,14 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp = ['spent_seconds' => 0];
             $lp_status = 0;
             $lp_completed = false;
-            if ($type === 'xjit') {
-                $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
-            }
             $lp_in_progress = false;
             $lp_failed = false;
             $lp_downloaded = false;
             $lp_progresses = [];
             $lp_success_status = "unknown";
+            if ($type === 'xjits') {
+                $lp_completed = ilLPStatus::_hasUserCompleted($obj_id, $this->user->getId());
+            }
         } else {
             $lp = ilLearningProgress::_getProgress($this->user->getId(), $obj_id);
             $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
@@ -466,7 +466,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         ob_start();
         ?>
         <div class="kalamun-card" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
-        <?php var_dump($lp); ?>
             <?php if ($this->ctrl->getCmd() == "edit") {
                 ?><div class="kalamun-card_prevent-link"></div><?php
             } ?>
