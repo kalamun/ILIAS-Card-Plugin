@@ -375,6 +375,14 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $this->ctrl->setParameterByClass("ilObjPluginDispatchGUI", "forwardCmd", "showContents");
             $permalink = $this->ctrl->getLinkTargetByClass("ilObjPluginDispatchGUI", "forward");
             ///ilias.php?baseClass=ilObjPluginDispatchGUI&cmd=forward&ref_id=102&forwardCmd=showContents
+        } elseif ($type == "exc") {
+            $this->ctrl->setParameterByClass("ilExerciseHandlerGUI", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilExerciseHandlerGUI", "showOverview");
+            ///ilias.php?baseClass=ilExerciseHandlerGUI&ref_id=108&cmd=showOverview
+        } elseif ($type == "frm") {
+            $this->ctrl->setParameterByClass("ilRepositoryGUI", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilRepositoryGUI", "showThreads");
+            ///ilias.php?ref_id=107&cmd=showThreads&cmdClass=ilrepositorygui&cmdNode=wx&baseClass=ilRepositoryGUI
         } else {
             $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $ref_id);
             $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
@@ -399,6 +407,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp = ['spent_seconds' => 0];
             $lp_status = 0;
             $lp_completed = false;
+            if ($type === 'xjit') {
+                $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
+            }
             $lp_in_progress = false;
             $lp_failed = false;
             $lp_downloaded = false;
@@ -455,6 +466,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         ob_start();
         ?>
         <div class="kalamun-card" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
+        <?php var_dump($lp); ?>
             <?php if ($this->ctrl->getCmd() == "edit") {
                 ?><div class="kalamun-card_prevent-link"></div><?php
             } ?>
@@ -470,7 +482,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             if (count($lp_scores) > 0) {
                                 foreach ($lp_scores as $score) {
                                     if ($score == "") continue;
-                                    ?><span class="score"><?= $score; ?></span><?php
+                                    ?><span class="score"><?= $this->plugin->txt('score'); ?> <?= $score; ?>%</span><?php
                                 }
                             }
                             ?>
