@@ -200,7 +200,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($select_layout);
 
         // mandatory
-        $input_mandatory = new ilCheckBoxInputGUI($this->lng->txt("mandatory", 'mandatory'));
+        $input_mandatory = new ilCheckBoxInputGUI($this->lng->txt("mandatory"), 'mandatory');
         $input_mandatory->setRequired(false);
         $form->addItem($input_mandatory);
         
@@ -252,6 +252,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
 
             $mandatory = $form->getInput('mandatory');
             $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
+    
             dciCourse::update_mandatory_object($root_course['obj_id'], $properties['ref_id'], $mandatory);
 
             foreach(["thumbnail"] as $key) {
