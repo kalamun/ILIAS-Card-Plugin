@@ -463,6 +463,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         }
         if ($lp_percent > 0 && $type == "htlm") {
             $lp_percent = 100;
+            $lp_completed = true;
         }
         
         $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
@@ -549,6 +550,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             <?php }
                             elseif (!empty($lp_downloaded)) { ?>
                                 <div class="kalamun-card_progress downloaded completed"><button class="outlined"><?= $this->plugin->txt('downloaded'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            elseif (!empty($lp_completed) && $type == "sahs") { ?>
+                                <div class="kalamun-card_progress completed"><button class="outlined"><?= $this->plugin->txt('ended'); ?> <span class="icon-right"></span></button></div>
                             <?php }
                             elseif (!empty($lp_completed)) { ?>
                                 <div class="kalamun-card_progress completed"><button class="outlined"><?= $this->plugin->txt('completed'); ?> <span class="icon-right"></span></button></div>
