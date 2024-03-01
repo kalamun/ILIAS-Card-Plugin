@@ -1,9 +1,10 @@
 cmd_insert#:#Insert Card
 content_plugin_version#:#Content last edited with version
 edit_input_field#:#Edit Card
+download#:#Download
 downloaded#:#Downloaded
 in_progress#:#In progress
-completed#:#Completed
+completed#:#Ended
 failed#:#Not passed
 mandatory#:#Mandatory to be completed
 start#:#Start
@@ -14,6 +15,6 @@ wide#:#Wide
 starting_date#:#Starting date
 duration#:#Duration
 opens_10_minutes_before#:#Opens 10 minutes before
-ended#:#Done
+ended#:#Ended
 join_call#:#Join the call
 score#:#score

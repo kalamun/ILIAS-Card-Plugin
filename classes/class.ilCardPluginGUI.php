@@ -189,6 +189,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($starting_date);
 
         $duration = new ilDurationInputGUI($this->lng->txt("duration"), 'duration');
+        $duration->setShowDays(true);
         $duration->setRequired(false);
         $form->addItem($duration);
 
@@ -215,7 +216,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $input_title->setValue($prop['title']);
             $input_description->setValue($prop['description']);
             $starting_date->setDate(new ilDateTime($prop['starting_date'], IL_CAL_DATETIME));
-            $duration->setHours(explode(":", $prop['duration'])[0]);
+            $duration->setDays(floor(explode(":", $prop['duration'])[0]/24));
+            $duration->setHours(explode(":", $prop['duration'])[0]%24);
             $duration->setMinutes(explode(":", $prop['duration'])[1]);
             $select_layout->setValue($prop['layout']);
 
@@ -248,7 +250,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $properties['description'] = $form->getInput('description');
             $properties['layout'] = $form->getInput('layout');
             $properties['starting_date'] = $form->getInput('starting_date');
-            $properties['duration'] = implode(":", $form->getInput('duration'));
+            $duration = $form->getInput('duration');
+            $properties['duration'] = (intval($duration["dd"])*24 + intval($duration["hh"])) . ':' . intval($duration["mm"]);
 
             $mandatory = $form->getInput('mandatory');
             $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
@@ -446,7 +449,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         }
         
         $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds']))) . " min";
-        $nice_learning_time = str_replace("00:", "", gmdate("H:i", $typical_learning_time)) . " min";
+        $nice_learning_time = (!empty($duration[0]) ? $duration[0] . "h " : "") . $duration[1] . "min";
         
         if( empty( $lp_percent ) && ($lp_completed || $lp_downloaded)) {
             $lp_percent = 100;
@@ -554,6 +557,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             <?php }
                             elseif (!empty($lp_failed)) { ?>
                                 <div class="kalamun-card_progress failed"><button><?= $this->plugin->txt('failed'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            elseif ($type == "file") { ?>
+                                <div class="kalamun-card_progress not-started"><button><?= $this->plugin->txt('download'); ?> <span class="icon-right"></span></button></div>
                             <?php }
                             else { ?>
                                 <div class="kalamun-card_progress not-started"><button><?= $this->plugin->txt('start'); ?> <span class="icon-right"></span></button></div>
