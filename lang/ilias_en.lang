@@ -1,9 +1,10 @@
 cmd_insert#:#Insert Card
 content_plugin_version#:#Content last edited with version
 edit_input_field#:#Edit Card
+download#:#Download
 downloaded#:#Downloaded
 in_progress#:#In progress
-completed#:#Completed
+completed#:#Ended
 failed#:#Not passed
 mandatory#:#Mandatory to be completed
 start#:#Start
