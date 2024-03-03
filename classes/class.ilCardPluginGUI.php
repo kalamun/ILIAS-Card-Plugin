@@ -201,7 +201,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($select_layout);
 
         // mandatory
-        $input_mandatory = new ilCheckBoxInputGUI($this->lng->txt("mandatory", 'mandatory'));
+        $input_mandatory = new ilCheckBoxInputGUI($this->lng->txt("mandatory"), 'mandatory');
         $input_mandatory->setRequired(false);
         $form->addItem($input_mandatory);
         
@@ -463,6 +463,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if( $has_tests && $lp_completed) {
             $lp_percent = 100;
         }
+        if ($lp_percent > 0 && $type == "htlm") {
+            $lp_percent = 100;
+            $lp_completed = true;
+        }
         
         $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
 
@@ -548,6 +552,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             <?php }
                             elseif (!empty($lp_downloaded)) { ?>
                                 <div class="kalamun-card_progress downloaded completed"><button class="outlined"><?= $this->plugin->txt('downloaded'); ?> <span class="icon-right"></span></button></div>
+                            <?php }
+                            elseif (!empty($lp_completed) && $type == "sahs") { ?>
+                                <div class="kalamun-card_progress completed"><button class="outlined"><?= $this->plugin->txt('ended'); ?> <span class="icon-right"></span></button></div>
                             <?php }
                             elseif (!empty($lp_completed)) { ?>
                                 <div class="kalamun-card_progress completed"><button class="outlined"><?= $this->plugin->txt('completed'); ?> <span class="icon-right"></span></button></div>
