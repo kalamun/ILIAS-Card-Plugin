@@ -217,9 +217,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $input_title->setValue($prop['title']);
             $input_description->setValue($prop['description']);
             $starting_date->setDate(new ilDateTime($prop['starting_date'], IL_CAL_DATETIME));
-            $duration->setDays(floor(explode(":", $prop['duration'])[0]/24));
-            $duration->setHours(explode(":", $prop['duration'])[0]%24);
-            $duration->setMinutes(explode(":", $prop['duration'])[1]);
+            $duration->setDays(floor(intval(explode(":", $prop['duration'])[0])/24));
+            $duration->setHours(intval(explode(":", $prop['duration'])[0])%24);
+            $duration->setMinutes(intval(explode(":", $prop['duration'])[1]));
             $select_layout->setValue($prop['layout']);
 
             if (!emptY($prop['thumbnail'])) {
