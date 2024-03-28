@@ -43,6 +43,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $this->tree = $DIC->repositoryTree();
         $this->object = $DIC->object();
         $this->user = $DIC['ilUser'];
+        $this->rbac = $DIC->rbac()->system();
     }
 
     /**
@@ -154,7 +155,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $select_options[$obj["ref_id"]] = $obj['title'] . " (" . $obj['type'] . " / " . $obj['last_update'] . ")";
         }
         natcasesort($select_options);
-
+        
         // choose object
         $input_ref_if = new ilSelectInputGUI($this->lng->txt("object"), "ref_id");
         $input_ref_if->setRequired(true);
@@ -319,6 +320,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $starting_date = !empty($a_properties['starting_date']) ? $a_properties['starting_date'] : false;
         $duration = !empty($a_properties['duration']) ? explode(":", $a_properties['duration']) : false;
 
+        $user_has_access = $this->rbac->checkAccessOfUser($this->user->getId(), "read", $ref_id);
+        $status = ($obj->getOfflineStatus() || !$user_has_access) ? 'offline' : 'online';
+
         $starting_date_timestamp = false;
         $ending_date_timestamp = false;
         if (!empty($starting_date)) {
@@ -470,7 +474,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
 
         ob_start();
         ?>
-        <div class="kalamun-card" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
+        <div class="kalamun-card" data-status="<?= $status; ?>" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
             <?php if ($this->ctrl->getCmd() == "edit") {
                 ?><div class="kalamun-card_prevent-link"></div><?php
             } ?>
@@ -501,15 +505,15 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         ?><div class="kalamun-card_prgbar empty"></div><?php
                     }
                     ?>
-                    <?= (!empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
+                    <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
                         <?= (!empty($thumbnail_url) ? '<img src="' . $thumbnail_url . '" class="kalamun-card_thumbnail" />' : '<span class="kalamun-card_thumbnail"></span>'); ?>
-                    <?= (!empty($permalink)) ? '</a>' : ''; ?>
+                    <?= ($status === 'online' && !empty($permalink)) ? '</a>' : ''; ?>
                 </div>
                 <div class="kalamun-card_body">
                     <div class="kalamun-card_title">
-                        <?= (!empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
+                        <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
                             <?= $title; ?>
-                        <?= (!empty($permalink)) ? '</a>' : ''; ?>
+                        <?= ($status === 'online' && !empty($permalink)) ? '</a>' : ''; ?>
                     </div>
                     <?php
                     if (!empty($description)) { ?>
@@ -537,10 +541,14 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     <?php }
                     ?>
                     <div class="kalamun-card_cta">
-                        <?= (!empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
+                        <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
                             <?php
-                            if (empty($permalink)) { ?>
-                                <div class="kalamun-card_noprogress"><button class="outlined"><?= $this->plugin->txt(time() < $ending_date_timestamp ? 'opens_10_minutes_before' : 'ended'); ?></span></button></div>
+                            if ($status !== 'online') { ?>
+                                <div class="kalamun-card_main-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></div>
+                                <div class="kalamun-card_offline"><button class="outlined"><?= $this->plugin->txt('not_available'); ?></button></div>
+                            <?php }
+                            elseif (empty($permalink)) { ?>
+                                <div class="kalamun-card_noprogress"><button class="outlined"><?= $this->plugin->txt(time() < $ending_date_timestamp ? 'opens_10_minutes_before' : 'ended'); ?></button></div>
                             <?php }
                             elseif (!$type == "xjit") { ?>
                                 <div class="kalamun-card_noprogress"><button><?= $this->plugin->txt('join_call'); ?> <span class="icon-right"></span></button></div>
@@ -567,7 +575,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                                 <div class="kalamun-card_progress not-started"><button><?= $this->plugin->txt('start'); ?> <span class="icon-right"></span></button></div>
                             <?php }
                             ?>
-                        <?= (!empty($permalink)) ? '</a>' : ''; ?>
+                        <?= ($status === 'online' && !empty($permalink)) ? '</a>' : ''; ?>
                     </div>
                 </div>
             </div>
