@@ -321,7 +321,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $duration = !empty($a_properties['duration']) ? explode(":", $a_properties['duration']) : false;
 
         $user_has_access = $this->rbac->checkAccessOfUser($this->user->getId(), "read", $ref_id);
-        $status = ($obj->getOfflineStatus() || !$user_has_access) ? 'offline' : 'online';
+        $status = ($type !== "file" && ($obj->getOfflineStatus() || !$user_has_access)) ? 'offline' : 'online';
 
         $starting_date_timestamp = false;
         $ending_date_timestamp = false;
@@ -368,9 +368,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $permalink = $this->ctrl->getLinkTargetByClass("ilHTLMPresentationGUI", "view");
             //$permalink = "/ilias.php?baseClass=ilHTLMPresentationGUI&ref_id=" . $ref_id . "";
         } elseif ($type == "tst") {
-            $this->ctrl->setParameterByClass("ilTestPresentationGUI", "ref_id", $ref_id);
-            $permalink = $this->ctrl->getLinkTargetByClass("ilTestPresentationGUI", "view");
-            //$permalink = "/goto.php?target=tst_" . $ref_id . "&client_id=default";
+            $this->ctrl->setParameterByClass("ilobjtestgui", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass("ilobjtestgui", "infoScreen");
+            //$permalink = "/ilias.php?ref_id=133&cmd=infoScreen&cmdClass=ilobjtestgui&cmdNode=wx:rd&baseClass=ilrepositorygui&ref_id=133";
         } elseif ($type == "fold") {
             $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $ref_id);
             $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
