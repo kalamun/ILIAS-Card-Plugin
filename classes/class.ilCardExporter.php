@@ -8,61 +8,38 @@ class ilCardExporter extends ilXmlExporter
 {
     public function getXmlExportHeadDependencies(/* string */ $a_entity, /* string */ $a_target_release, /* array */ $a_ids) /* : array */
     {
-        // collect the files to export
-        // ref_id
-        // thumbnail
-        // https://docu.ilias.de/ilias.php?baseClass=illmpresentationgui&obj_id=32894&ref_id=42
-        // https://github.com/ILIAS-eLearning/TestPageComponent/blob/master/classes/class.ilTestPageComponentExporter.php
-
-        $ref_id = false;
-        $file_id = false;
+        $deps = [];
         foreach ($a_ids as $id) {
             $properties = ilPageComponentPluginExporter::getPCProperties($id);
-            if (isset($properties['ref_id'])) {
-                $ref_id = $properties['ref_id'];
-            }
-            if (isset($properties['thumbnail'])) {
-                $file_id = $properties['thumbnail'];
-            }
-        }
 
-        $deps = [];
+            foreach(["ref_id", "thumbnail"] as $property) {
+                if ($property === "ref_id") {
+                    // I already have the ref id
+                    $ref_id = $properties[$property];
+                    $obj = ilObjectFactory::getInstanceByRefId($ref_id);
+                    if (!empty($obj)) {
+                        $obj_id = $obj->getId();
+                        $entity = $obj->getType();
+                    }
+                } else {
+                    // get ref_id from obj_id
+                    $obj_id = $properties[$property];
+                    $obj = ilObjectFactory::getInstanceByObjId($obj_id);
+                    $ref_id = $obj->getRefId();
+                    $entity = $obj->getType();
+                }
 
-        $components = [
-            "copa" => "Modules/ContentPage",
-            "lm" => "Modules/LearningModule",
-            "file" => "Modules/File",
-            "sahs" => "Modules/Scorm2004",
-            "htlm" => "Modules/HTMLLearningModule",
-            "tst" => "Modules/Test",
-            "fold" => "Modules/Folder",
-            "xjit" => "",
-            "exc" => "Modules/Exercise",
-            "frm" => "Modules/Forum",
-        ];
-
-        // add the files as dependencies
-        if (!empty(($ref_id))) {
-            $obj = ilObjectFactory::getInstanceByRefId($ref_id);
-            if (!empty($obj)) {
-                $obj_id = $obj->getId();
-                $type = $obj->getType();
-    
-                if (!empty($components[$type])) {
-                    $deps[] = array(
-                        "component" => $components[$type],
-                        "entity" => $type,
-                        "ids" => $ref_id
-                    );
+                if (!empty(($ref_id)) && !empty(($entity))) {
+                    $component = ilObjectDefinition::getComponentForType($entity);
+                    if (!empty(($component))) {
+                        $deps[] = array(
+                            "component" => $component,
+                            "entity" => $entity,
+                            "ids" => $obj_id
+                        );
+                    }
                 }
             }
-        }
-        if (!empty(($file_id))) {
-            $deps[] = array(
-                "component" => $components["file"],
-                "entity" => "file",
-                "ids" => $file_id
-            );
         }
 
         return $deps;
@@ -78,26 +55,6 @@ class ilCardExporter extends ilXmlExporter
     public function getXmlRepresentation(/* string */ $a_entity, /* string */ $a_schema_version, /* string */ $a_id) /* : string */
     {
         return true;
-        $obj_id = intval(explode(":", $a_id)[1]);
-        $ref_ids = ilObject::_getAllReferences($obj_id);
-        $ref_id = array_shift($ref_ids);
-
-        if (empty($ref_id)) return false;
-
-        $obj = ilObjectFactory::getInstanceByRefId($ref_id);
-        $title = $obj->getTitle();
-        $description = $obj->getDescription();
-        $layout = "square";
-        $starting_date = false;
-        $duration = false;
-
-        $writer = new ilXmlWriter();
-        $writer->xmlStartTag("pcard");
-        $writer->xmlElement("title", null, $title);
-        $writer->xmlElement("description", null, $description);
-        $writer->xmlEndTag("pcard");
-
-        return $writer->xmlDumpMem(false);
     }
 
     public function init() : void
