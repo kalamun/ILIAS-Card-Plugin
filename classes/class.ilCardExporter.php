@@ -13,6 +13,8 @@ class ilCardExporter extends ilXmlExporter
             $properties = ilPageComponentPluginExporter::getPCProperties($id);
 
             foreach(["ref_id", "thumbnail"] as $property) {
+                if (empty($properties[$property])) continue;
+
                 if ($property === "ref_id") {
                     // I already have the ref id
                     $ref_id = $properties[$property];
