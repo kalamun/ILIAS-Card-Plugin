@@ -24,7 +24,7 @@
  */
 class ilCardPluginGUI extends ilPageComponentPluginGUI
 {
-    protected /* ilLanguage */ $lng;
+    protected ilLanguage $lng;
     protected ilCtrl $ctrl;
     protected ilGlobalTemplateInterface $tpl;
     protected ilTree $tree;
@@ -66,6 +66,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
 
     private static function get_inline_js() : string
     {
+        if (!class_exists("dciSkin_tabs")) return "";
         $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
         $mandatory_objects = dciCourse::get_mandatory_objects($root_course['obj_id']);
         
@@ -144,8 +145,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
      * Init editing form
      */
     protected function initForm(bool $a_create = false) : ilPropertyFormGUI
-    {
+    {        
         $form = new ilPropertyFormGUI();
+        if (!class_exists("dciSkin_tabs")) return $form;
 
         $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
         $subTree = $this->tree->getSubTree($this->tree->getNodeData($root_course['ref_id']));
@@ -310,7 +312,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
      * @param string    page mode (edit, presentation, print, preview, offline)
      * @return string   html code
      */
-    public function getElementHTML(/* string */ $a_mode, /* array */ $a_properties, /* string */ $a_plugin_version) /* : string */
+    public function getElementHTML(string $a_mode, array $a_properties, string $a_plugin_version) : string
     {
         $ref_id = $a_properties['ref_id'];
         $obj = ilObjectFactory::getInstanceByRefId($ref_id);

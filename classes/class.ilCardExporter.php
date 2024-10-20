@@ -6,7 +6,7 @@
  */
 class ilCardExporter extends ilXmlExporter
 {
-    public function getXmlExportHeadDependencies(/* string */ $a_entity, /* string */ $a_target_release, /* array */ $a_ids) /* : array */
+    public function getXmlExportHeadDependencies(string $a_entity, string $a_target_release, array $a_ids) : array
     {
         $deps = [];
         foreach ($a_ids as $id) {
@@ -54,7 +54,7 @@ class ilCardExporter extends ilXmlExporter
      * @param string        id
      * @return    string        xml string
      */
-    public function getXmlRepresentation(/* string */ $a_entity, /* string */ $a_schema_version, /* string */ $a_id) /* : string */
+    public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id) : string
     {
         return true;
     }
@@ -71,7 +71,7 @@ class ilCardExporter extends ilXmlExporter
      * @param array        ids
      * @return        array        array of array with keys "component", entity", "ids"
      */
-    public function getXmlExportTailDependencies(/* string */ $a_entity, /* string */ $a_target_release, /* array */ $a_ids) /* : array */
+    public function getXmlExportTailDependencies(string $a_entity, string $a_target_release, array $a_ids) : array
     {
         return array();
     }
@@ -90,7 +90,7 @@ class ilCardExporter extends ilXmlExporter
      * @param string $a_entity
      * @return string[][]
      */
-    public function getValidSchemaVersions(/* string */ $a_entity) /* : array */
+    public function getValidSchemaVersions(string $a_entity) : array
     {
         return array(
             "5.2.0" => array(

@@ -14,11 +14,11 @@ class ilCardImporter extends ilPageComponentPluginImporter /* ilXmlImporter */
      * @return    string        xml string
      */
     public function importXmlRepresentation(
-        /* string */ $a_entity,
-        /* string */ $a_id,
-        /* string */ $a_xml,
-        /* ilImportMapping */ $a_mapping
-    ) /* : void */ {
+        string $a_entity,
+        string $a_id,
+        string $a_xml,
+        ilImportMapping $a_mapping
+    ) : void {
         global $DIC;
 
         /** @var ilComponentFactory $component_factory */
