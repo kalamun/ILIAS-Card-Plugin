@@ -29,14 +29,17 @@ class ilCardImporter extends ilPageComponentPluginImporter /* ilXmlImporter */
         $properties = self::getPCProperties($new_id);
         $version = self::getPCVersion($new_id);
 
-        if ($old_file_id = $properties['ref_id']) {
+        $ref_id = $properties['target_ref_id'];
+        if (empty($ref_id)) $ref_id = $properties['ref_id'];
+
+        if ($old_file_id = $ref_id) {
             $new_file_id = false;
             foreach($a_mapping->getAllMappings() as $component) {
-                $new_file_id = $component['refs'][$properties['ref_id']];
+                $new_file_id = $component['refs'][$ref_id];
                 if (!empty($new_file_id)) break;
             }
             if (!empty($new_file_id)) {
-                $properties['ref_id'] = $new_file_id;
+                $properties['target_ref_id'] = $new_file_id;
             }
         }
 

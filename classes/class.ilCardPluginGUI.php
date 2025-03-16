@@ -28,8 +28,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     protected ilCtrl $ctrl;
     protected ilGlobalTemplateInterface $tpl;
     protected ilTree $tree;
+/*  
     protected ilObjectService $object;
     protected ilObjUser $user;
+ */
 
     public function __construct()
     {
@@ -74,7 +76,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         ?>
         <script>
             window.addEventListener('DOMContentLoaded', () => {
-                const fieldObject = document.querySelector('select[name=ref_id]');
+                const fieldObject = document.querySelector('select[name=target_ref_id]');
                 const fieldMandatory = document.querySelector('input[name=mandatory]');
     
                 const updateMandatory = () => {
@@ -159,10 +161,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         natcasesort($select_options);
         
         // choose object
-        $input_ref_if = new ilSelectInputGUI($this->lng->txt("object"), "ref_id");
-        $input_ref_if->setRequired(true);
-        $input_ref_if->setOptions($select_options);
-        $form->addItem($input_ref_if);
+        $input_ref_id = new ilSelectInputGUI($this->lng->txt("object"), "target_ref_id");
+        $input_ref_id->setRequired(true);
+        $input_ref_id->setOptions($select_options);
+        $form->addItem($input_ref_id);
 
         // thumbnail
         $thumbnail = new ilImageFileInputGUI($this->lng->txt("thumbnail"), 'thumbnail');
@@ -204,10 +206,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($select_layout);
 
         // mandatory
-        $input_mandatory = new ilCheckBoxInputGUI($this->lng->txt("mandatory"), 'mandatory');
+        $input_mandatory = new ilCheckboxInputGUI($this->lng->txt("mandatory"), 'mandatory');
         $input_mandatory->setRequired(false);
         $form->addItem($input_mandatory);
-        
+
         // save and cancel commands
         if ($a_create) {
             $this->addCreationButton($form);
@@ -215,7 +217,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $form->setTitle($this->plugin->getPluginName());
         } else {
             $prop = $this->getProperties();
-            $input_ref_if->setValue($prop['ref_id']);
+            $target_ref_id = $prop['target_ref_id'];
+            if (empty($target_ref_id)) $target_ref_id = $prop['ref_id'];
+            $input_ref_id->setValue($target_ref_id);
             $input_title->setValue($prop['title']);
             $input_description->setValue($prop['description']);
             $starting_date->setDate(new ilDateTime($prop['starting_date'], IL_CAL_DATETIME));
@@ -248,7 +252,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if ($form->checkInput()) {
             $properties = $this->getProperties();
 
-            $properties['ref_id'] = $form->getInput('ref_id');
+            $properties['target_ref_id'] = $form->getInput('target_ref_id');
             $properties['title'] = $form->getInput('title');
             $properties['description'] = $form->getInput('description');
             $properties['layout'] = $form->getInput('layout');
@@ -259,7 +263,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $mandatory = $form->getInput('mandatory');
             $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
     
-            dciCourse::update_mandatory_object($root_course['obj_id'], $properties['ref_id'], $mandatory);
+            dciCourse::update_mandatory_object($root_course['obj_id'], $properties['target_ref_id'], $mandatory);
 
             foreach(["thumbnail"] as $key) {
                 if (!empty($_FILES[$key]["name"])) {
@@ -314,8 +318,11 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
      */
     public function getElementHTML(string $a_mode, array $a_properties, string $a_plugin_version) : string
     {
-        $ref_id = $a_properties['ref_id'];
-        $obj = ilObjectFactory::getInstanceByRefId($ref_id);
+        $ref_id = $a_properties['target_ref_id'];
+        if (empty($ref_id)) $ref_id = $a_properties['ref_id'];
+        
+        $obj = ilObjectFactory::getInstanceByRefId($ref_id, false);
+        if (empty($obj)) return "";
         $obj_id = $obj->getId();
         $lp_mode = 0; //$obj->getLPMode();
         $type = $obj->getType();
@@ -324,21 +331,21 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $layout = !empty($a_properties['layout']) ? $a_properties['layout'] : "square";
         $starting_date = !empty($a_properties['starting_date']) ? $a_properties['starting_date'] : false;
         $duration = !empty($a_properties['duration']) ? explode(":", $a_properties['duration']) : false;
-
+        
         $user_has_access = $this->rbac->checkAccessOfUser($this->user->getId(), "read", $ref_id);
         $status = ($type !== "file" && ($obj->getOfflineStatus() || !$user_has_access)) ? 'offline' : 'online';
-
+        
         $starting_date_timestamp = false;
         $ending_date_timestamp = false;
         if (!empty($starting_date)) {
             $date = DateTime::createFromFormat('Y-m-d H:i:s', $starting_date);
             $starting_date_timestamp = $date->getTimestamp();
-
+            
             if (!empty($duration) && !empty($starting_date_timestamp)) {
                 $ending_date_timestamp = $starting_date_timestamp + ($duration[0] * 60 * 60) + ($duration[1] * 60);
             }
         }
-
+        
         // thumbnail
         $thumbnail_url = "";
         if (!emptY($a_properties['thumbnail'])) {
@@ -349,11 +356,14 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 $thumbnail_url = $this->ctrl->getLinkTargetByClass(array('ilUIPluginRouterGUI', 'ilCardPluginGUI'), 'downloadFile');
             }
         } else {
-            $tile_image = $this->object->commonSettings()->tileImage()->getByObjId($obj_id);
-            $thumbnail_url = $tile_image->exists() ? $tile_image->getFullPath() : "";
+            if (!empty($this->object)) {
+                $tile_image =  $this->object->commonSettings()->tileImage()->getByObjId($obj_id);
+                $thumbnail_url = $tile_image->exists() ? $tile_image->getFullPath() : "";
+            } else {
+                $thumbnail_url = false;
+            }
         }
-
-
+        
         // learning progress
         $typical_learning_time = ilMDEducational::_getTypicalLearningTimeSeconds($obj_id);
 
@@ -510,13 +520,13 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         ?><div class="kalamun-card_prgbar empty"></div><?php
                     }
                     ?>
-                    <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
+                    <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '">' : ''; ?>
                         <?= (!empty($thumbnail_url) ? '<img src="' . $thumbnail_url . '" class="kalamun-card_thumbnail" />' : '<span class="kalamun-card_thumbnail"></span>'); ?>
                     <?= ($status === 'online' && !empty($permalink)) ? '</a>' : ''; ?>
                 </div>
                 <div class="kalamun-card_body">
                     <div class="kalamun-card_title">
-                        <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
+                        <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '">' : ''; ?>
                             <?= $title; ?>
                         <?= ($status === 'online' && !empty($permalink)) ? '</a>' : ''; ?>
                     </div>
@@ -546,7 +556,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     <?php }
                     ?>
                     <div class="kalamun-card_cta">
-                        <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
+                        <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '">' : ''; ?>
                             <?php
                             if ($status !== 'online') { ?>
                                 <div class="kalamun-card_main-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></div>

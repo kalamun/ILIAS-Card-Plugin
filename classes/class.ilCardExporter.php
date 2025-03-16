@@ -9,26 +9,31 @@ class ilCardExporter extends ilXmlExporter
     public function getXmlExportHeadDependencies(string $a_entity, string $a_target_release, array $a_ids) : array
     {
         $deps = [];
+        return [];
         foreach ($a_ids as $id) {
             $properties = ilPageComponentPluginExporter::getPCProperties($id);
 
-            foreach(["ref_id", "thumbnail"] as $property) {
+            foreach(["ref_id", "target_ref_id", "thumbnail"] as $property) {
                 if (empty($properties[$property])) continue;
 
-                if ($property === "ref_id") {
+                if ($property === "ref_id" || $property === "target_ref_id") {
                     // I already have the ref id
                     $ref_id = $properties[$property];
-                    $obj = ilObjectFactory::getInstanceByRefId($ref_id);
-                    if (!empty($obj)) {
-                        $obj_id = $obj->getId();
-                        $entity = $obj->getType();
+                    if (!empty($ref_id)) {
+                        $obj = ilObjectFactory::getInstanceByRefId($ref_id, false);
+                        if (!empty($obj)) {
+                            $obj_id = $obj->getId();
+                            $entity = $obj->getType();
+                        }
                     }
                 } else {
                     // get ref_id from obj_id
                     $obj_id = $properties[$property];
-                    $obj = ilObjectFactory::getInstanceByObjId($obj_id);
-                    $ref_id = $obj->getRefId();
-                    $entity = $obj->getType();
+                    $obj = ilObjectFactory::getInstanceByObjId($obj_id, false);
+                    if (!empty($obj)) {
+                        $ref_id = $obj->getRefId();
+                        $entity = $obj->getType();
+                    }
                 }
 
                 if (!empty(($ref_id)) && !empty(($entity))) {
@@ -37,13 +42,13 @@ class ilCardExporter extends ilXmlExporter
                         $deps[] = array(
                             "component" => $component,
                             "entity" => $entity,
-                            "ids" => $obj_id
+                            "ids" => [$obj_id]
                         );
                     }
                 }
+
             }
         }
-
         return $deps;
     }
 
