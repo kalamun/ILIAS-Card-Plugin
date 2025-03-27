@@ -194,6 +194,13 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $duration->setRequired(false);
         $form->addItem($duration);
 
+        // type
+        $select_type = new ilSelectInputGUI($this->plugin->txt("type"));
+        $select_type->setPostVar("type");
+        $select_type->setOptions(["" => $this->plugin->txt("auto"), "webscorm" => $this->plugin->txt("webscorm")]);
+        $select_type->setRequired(true);
+        $form->addItem($select_type);
+
         // layout
         $select_layout = new ilSelectInputGUI($this->plugin->txt("layout"));
         $select_layout->setPostVar("layout");
@@ -221,6 +228,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $duration->setHours(intval(explode(":", $prop['duration'])[0])%24);
             $duration->setMinutes(intval(explode(":", $prop['duration'])[1]));
             $select_layout->setValue($prop['layout']);
+            $select_type->setValue($prop['type']);
 
             if (!emptY($prop['thumbnail'])) {
                 $fileObj = new ilObjFile($prop['thumbnail'], false);
@@ -249,6 +257,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $properties['ref_id'] = $form->getInput('ref_id');
             $properties['title'] = $form->getInput('title');
             $properties['description'] = $form->getInput('description');
+            $properties['type'] = $form->getInput('type');
             $properties['layout'] = $form->getInput('layout');
             $properties['starting_date'] = $form->getInput('starting_date');
             $duration = $form->getInput('duration');
@@ -319,6 +328,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $type = $obj->getType();
         $title = !empty($a_properties['title']) ? $a_properties['title'] : $obj->getTitle();
         $description = !empty($a_properties['description']) ? $a_properties['description'] : $obj->getDescription();
+        $content_type = !empty($a_properties['type']) ? $a_properties['type'] : "";
         $layout = !empty($a_properties['layout']) ? $a_properties['layout'] : "square";
         $starting_date = !empty($a_properties['starting_date']) ? $a_properties['starting_date'] : false;
         $duration = !empty($a_properties['duration']) ? explode(":", $a_properties['duration']) : false;
@@ -502,7 +512,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         <?php
                     }
 
-                    if ($type !== "file" && $has_progress) {
+                    if ($content_type == "webscorm" && $has_progress) {
+                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent * 2; ?>"></meter></div><?php
+                    } elseif ($type !== "file" && $has_progress) {
                         ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
                     } else {
                         ?><div class="kalamun-card_prgbar empty"></div><?php
@@ -550,6 +562,25 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                                 <div class="kalamun-card_main-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></div>
                                 <div class="kalamun-card_offline"><button class="outlined"><?= $this->plugin->txt('not_available'); ?></button></div>
                             <?php }
+                            elseif ($content_type == "webscorm") {
+                                if (!$has_progress) {
+                                    ?>
+                                    <div class="kalamun-card_progress"><button>Commencer</button></div>
+                                    <?php
+                                } elseif ($lp_percent < 50) {
+                                    ?>
+                                    <div class="kalamun-card_progress"><button>En cours</button></div>
+                                    <?php
+                                } elseif ($lp_percent < 100) {
+                                    ?>
+                                    <div class="kalamun-card_progress"><button>A refaire avec progression</button></div>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <div class="kalamun-card_progress"><button>Terminé</button></div>
+                                    <?php
+                                }
+                            }
                             elseif (empty($permalink)) { ?>
                                 <div class="kalamun-card_noprogress"><button class="outlined"><?= $this->plugin->txt(time() < $ending_date_timestamp ? 'opens_10_minutes_before' : 'ended'); ?></button></div>
                             <?php }
