@@ -513,7 +513,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     }
 
                     if ($content_type == "webscorm" && $has_progress) {
-                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent * 2; ?>"></meter></div><?php
+                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent <= 50 ? $lp_percent * 2 : ($lp_percent - 50) * 2; ?>"></meter></div><?php
                     } elseif ($type !== "file" && $has_progress) {
                         ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
                     } else {
@@ -563,7 +563,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                                 <div class="kalamun-card_offline"><button class="outlined"><?= $this->plugin->txt('not_available'); ?></button></div>
                             <?php }
                             elseif ($content_type == "webscorm") {
-                                if (!$has_progress) {
+                                if (!$has_progress || $lp_percent == 0) {
                                     ?>
                                     <div class="kalamun-card_progress"><button>Commencer</button></div>
                                     <?php
