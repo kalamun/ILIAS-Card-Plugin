@@ -517,7 +517,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     if ($content_type == "web_step1") {
                         ?><div class="kalamun-card_prgbar empty"></div><?php
                     } elseif ($content_type == "web_step2" && $has_progress) {
-                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent <= 50 ? $lp_percent * 2 : ($lp_percent - 50) * 2; ?>"></meter></div><?php
+                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= (max(50, $lp_percent) - 50) * 2; ?>"></meter></div><?php
                     } elseif ($type !== "file" && $has_progress) {
                         ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
                     } else {
