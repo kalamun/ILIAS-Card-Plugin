@@ -21,4 +21,5 @@ score#:#score
 not_available#:#Pas disponible
 type#:#Type de contenu
 auto#:#Auto-detect
-webscorm#:#Web (2 phases) 
+web_step1#:#Web, auto-évaluation
+web_step2#:#Web, évaluation finale

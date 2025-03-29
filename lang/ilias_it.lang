@@ -20,4 +20,5 @@ score#:#punti
 not_available#:#Non disponibile
 type#:#Tipo di contenuto
 auto#:#Auto-rileva
-webscorm#:#Web (2 fasi) 
+web_step1#:#Web, auto-valutazione
+web_step2#:#Web, valutazione finale

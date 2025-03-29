@@ -197,7 +197,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         // type
         $select_type = new ilSelectInputGUI($this->plugin->txt("type"));
         $select_type->setPostVar("type");
-        $select_type->setOptions(["" => $this->plugin->txt("auto"), "webscorm" => $this->plugin->txt("webscorm")]);
+        $select_type->setOptions(["" => $this->plugin->txt("auto"), "web_step1" => $this->plugin->txt("web_step1"), "web_step2" => $this->plugin->txt("web_step2")]);
         $select_type->setRequired(true);
         $form->addItem($select_type);
 
@@ -485,6 +485,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         
         $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
 
+        if ($content_type == "web_step2" && (!$has_progress || $lp_percent < 50)) $status = 'offline';
+
         ob_start();
         ?>
         <div class="kalamun-card" data-status="<?= $status; ?>" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
@@ -512,7 +514,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         <?php
                     }
 
-                    if ($content_type == "webscorm" && $has_progress) {
+                    if ($content_type == "web_step1") {
+                        ?><div class="kalamun-card_prgbar empty"></div><?php
+                    } elseif ($content_type == "web_step2" && $has_progress) {
                         ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent <= 50 ? $lp_percent * 2 : ($lp_percent - 50) * 2; ?>"></meter></div><?php
                     } elseif ($type !== "file" && $has_progress) {
                         ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
@@ -562,22 +566,37 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                                 <div class="kalamun-card_main-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></div>
                                 <div class="kalamun-card_offline"><button class="outlined"><?= $this->plugin->txt('not_available'); ?></button></div>
                             <?php }
-                            elseif ($content_type == "webscorm") {
+                            elseif ($content_type == "web_step1") {
                                 if (!$has_progress || $lp_percent == 0) {
                                     ?>
-                                    <div class="kalamun-card_progress"><button>Commencer</button></div>
+                                    <div class="kalamun-card_progress"><button>Commencer <span class="icon-right"></span></button></div>
                                     <?php
                                 } elseif ($lp_percent < 50) {
                                     ?>
-                                    <div class="kalamun-card_progress"><button>En cours</button></div>
-                                    <?php
-                                } elseif ($lp_percent < 100) {
-                                    ?>
-                                    <div class="kalamun-card_progress"><button>A refaire avec progression</button></div>
+                                    <div class="kalamun-card_progress"><button>En cours <span class="icon-right"></span></button></div>
                                     <?php
                                 } else {
                                     ?>
-                                    <div class="kalamun-card_progress"><button>Terminé</button></div>
+                                    <div class="kalamun-card_progress"><button class="outlined">Terminé</button></div>
+                                    <?php
+                                }
+                            }
+                            elseif ($content_type == "web_step2") {
+                                if (!$has_progress || $lp_percent < 50) {
+                                    ?>
+                                    <div class="kalamun-card_progress"><button class="outlined">La première partie n'a pas encore été faite</button></div>
+                                    <?php
+                                } elseif ($lp_percent == 50) {
+                                    ?>
+                                    <div class="kalamun-card_progress"><button>Commencer <span class="icon-right"></span></button></div>
+                                    <?php
+                                } elseif ($lp_percent < 100) {
+                                    ?>
+                                    <div class="kalamun-card_progress"><button>En cours <span class="icon-right"></span></button></div>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <div class="kalamun-card_progress"><button class="outlined">Terminé</button></div>
                                     <?php
                                 }
                             }
