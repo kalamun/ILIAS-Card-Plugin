@@ -562,11 +562,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     <div class="kalamun-card_cta">
                         <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
                             <?php
-                            if ($status !== 'online') { ?>
-                                <div class="kalamun-card_main-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></div>
-                                <div class="kalamun-card_offline"><button class="outlined"><?= $this->plugin->txt('not_available'); ?></button></div>
-                            <?php }
-                            elseif ($content_type == "web_step1") {
+                            if ($content_type == "web_step1") {
                                 if (!$has_progress || $lp_percent == 0) {
                                     ?>
                                     <div class="kalamun-card_progress"><button>Commencer <span class="icon-right"></span></button></div>
@@ -582,7 +578,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                                 }
                             }
                             elseif ($content_type == "web_step2") {
-                                if (!$has_progress || $lp_percent < 50) {
+                                if ($status !== 'online' || !$has_progress || $lp_percent < 50) {
                                     ?>
                                     <div class="kalamun-card_progress"><button class="outlined">Accés verrouillé</button></div>
                                     <?php
@@ -600,6 +596,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                                     <?php
                                 }
                             }
+                            elseif ($status !== 'online') { ?>
+                                <div class="kalamun-card_main-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></div>
+                                <div class="kalamun-card_offline"><button class="outlined"><?= $this->plugin->txt('not_available'); ?></button></div>
+                            <?php }
                             elseif (empty($permalink)) { ?>
                                 <div class="kalamun-card_noprogress"><button class="outlined"><?= $this->plugin->txt(time() < $ending_date_timestamp ? 'opens_10_minutes_before' : 'ended'); ?></button></div>
                             <?php }
