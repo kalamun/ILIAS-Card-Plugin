@@ -198,7 +198,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $select_type = new ilSelectInputGUI($this->plugin->txt("type"));
         $select_type->setPostVar("type");
         $select_type->setOptions(["" => $this->plugin->txt("auto"), "web_step1" => $this->plugin->txt("web_step1"), "web_step2" => $this->plugin->txt("web_step2")]);
-        $select_type->setRequired(true);
+        $select_type->setRequired(false);
         $form->addItem($select_type);
 
         // layout
