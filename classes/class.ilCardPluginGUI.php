@@ -584,7 +584,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                             elseif ($content_type == "web_step2") {
                                 if (!$has_progress || $lp_percent < 50) {
                                     ?>
-                                    <div class="kalamun-card_progress"><button class="outlined">La première partie n'a pas encore été faite</button></div>
+                                    <div class="kalamun-card_progress"><button class="outlined">Accés verrouillé</button></div>
                                     <?php
                                 } elseif ($lp_percent == 50) {
                                     ?>
