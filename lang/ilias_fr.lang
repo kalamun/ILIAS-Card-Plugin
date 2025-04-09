@@ -13,6 +13,7 @@ layout#:#Mise-en-page
 square#:#Carré
 wide#:#Large
 starting_date#:#Date de début
+ending_date#:#Date de fin
 duration#:#Durée
 opens_10_minutes_before#:#Ouvre 10 minutes avant
 ended#:#Terminé

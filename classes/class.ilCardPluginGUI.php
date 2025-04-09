@@ -189,6 +189,11 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $starting_date->setRequired(false);
         $form->addItem($starting_date);
 
+        $ending_date = new ilDateTimeInputGUI($this->lng->txt("ending_date"), 'ending_date');
+        $ending_date->setShowTime(true);
+        $ending_date->setRequired(false);
+        $form->addItem($ending_date);
+
         $duration = new ilDurationInputGUI($this->lng->txt("duration"), 'duration');
         $duration->setShowDays(true);
         $duration->setRequired(false);
@@ -224,6 +229,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $input_title->setValue($prop['title']);
             $input_description->setValue($prop['description']);
             $starting_date->setDate(new ilDateTime($prop['starting_date'], IL_CAL_DATETIME));
+            $ending_date->setDate(new ilDateTime($prop['ending_date'], IL_CAL_DATETIME));
             $duration->setDays(floor(intval(explode(":", $prop['duration'])[0])/24));
             $duration->setHours(intval(explode(":", $prop['duration'])[0])%24);
             $duration->setMinutes(intval(explode(":", $prop['duration'])[1]));
@@ -260,6 +266,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $properties['type'] = $form->getInput('type');
             $properties['layout'] = $form->getInput('layout');
             $properties['starting_date'] = $form->getInput('starting_date');
+            $properties['ending_date'] = $form->getInput('ending_date');
             $duration = $form->getInput('duration');
             $properties['duration'] = (intval($duration["dd"])*24 + intval($duration["hh"])) . ':' . intval($duration["mm"]);
 
@@ -331,20 +338,23 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $content_type = !empty($a_properties['type']) ? $a_properties['type'] : "";
         $layout = !empty($a_properties['layout']) ? $a_properties['layout'] : "square";
         $starting_date = !empty($a_properties['starting_date']) ? $a_properties['starting_date'] : false;
+        $ending_date = !empty($a_properties['ending_date']) ? $a_properties['ending_date'] : false;
         $duration = !empty($a_properties['duration']) ? explode(":", $a_properties['duration']) : false;
 
         $user_has_access = $this->rbac->checkAccessOfUser($this->user->getId(), "read", $ref_id);
         $status = ($type !== "file" && ($obj->getOfflineStatus() || !$user_has_access)) ? 'offline' : 'online';
 
         $starting_date_timestamp = false;
-        $ending_date_timestamp = false;
         if (!empty($starting_date)) {
             $date = DateTime::createFromFormat('Y-m-d H:i:s', $starting_date);
             $starting_date_timestamp = $date->getTimestamp();
+        }
 
-            if (!empty($duration) && !empty($starting_date_timestamp)) {
-                $ending_date_timestamp = $starting_date_timestamp + ($duration[0] * 60 * 60) + ($duration[1] * 60);
-            }
+        $ending_date_timestamp = false;
+        if (!empty($ending_date)) {
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', $ending_date);
+            $ending_date_timestamp = $date->getTimestamp();
+            if ($ending_date_timestamp < $starting_date_timestamp) $ending_date_timestamp = $starting_date_timestamp;
         }
 
         // thumbnail
