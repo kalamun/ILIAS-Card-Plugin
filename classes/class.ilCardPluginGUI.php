@@ -495,6 +495,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         
         $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
 
+        // if the auto-evaluation scored 50 (1st part finished), put the pt1 card offline (user can't re-access to the first part)
+        if ($content_type == "web_step1" && ($has_progress && $lp_percent >= 50)) $status = 'offline';
+        // if the auto-evaluation scored less than 50, put the pt2 card offline (user can't start the second part)
         if ($content_type == "web_step2" && (!$has_progress || $lp_percent < 50)) $status = 'offline';
 
         ob_start();
