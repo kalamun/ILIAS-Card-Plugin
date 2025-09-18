@@ -500,6 +500,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         // if the auto-evaluation scored less than 50, put the pt2 card offline (user can't start the second part)
         if ($content_type == "web_step2" && (!$has_progress || $lp_percent < 50)) $status = 'offline';
 
+        if ($type == "grp" && $obj->isRegistrationEnabled()) $status = 'online';
+        
         ob_start();
         ?>
         <div class="kalamun-card" data-status="<?= $status; ?>" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
