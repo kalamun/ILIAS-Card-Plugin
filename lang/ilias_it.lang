@@ -2,6 +2,7 @@ cmd_insert#:#Inserire una Card
 content_plugin_version#:#Contenuto modificato l’ultima volta con la versione
 edit_input_field#:#Modificare la Card
 downloaded#:#Scaricato
+not_started#:#
 in_progress#:#In corso
 completed#:#Completato
 failed#:#Non superato

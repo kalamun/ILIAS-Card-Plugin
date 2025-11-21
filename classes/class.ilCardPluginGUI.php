@@ -321,6 +321,12 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $this->returnToParent();
     }
 
+    private function getLabelFromPercent($lp_percent) {
+        if (empty($lp_percent)) return 'not_started';
+        if ($lp_percent == 100) return 'completed';
+        return 'in_progress';
+    }
+
     /**
      * Get HTML for element
      * @param string    page mode (edit, presentation, print, preview, offline)
@@ -453,7 +459,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_downloaded = $lp['visits'] > 0 && $type == "file";
             $has_tests = false;
             $lp_success_status = "unknown";
-            $lp_completion_status = "unknown";
             $lp_scores = [];
             
             $lp_progresses = [];
@@ -467,7 +472,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         if ($progress->c_raw == false) continue;
                         $lp_scores[] = round($progress->c_raw);
                         $lp_success_status = $progress->success_status;
-                        $lp_completion_status = $progress->completion_status;
                     }
                 }
             }
@@ -517,11 +521,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         ?>
                         <div class="kalamun-card_status kalamun-card_scores result-<?= $lp_success_status; ?>">
                             <?php
-                            if (count($lp_scores) > 0) {
-                                foreach ($lp_scores as $score) {
-                                    if ($score == "") continue;
-                                    ?><span class="score"><?= $this->plugin->txt('score'); ?> <?= $score; ?>%</span><?php
-                                }
+                            foreach ($lp_scores as $score) {
+                                if ($score == "") continue;
+                                ?><span class="score"><?= $this->plugin->txt('score'); ?> <?= $score; ?>%</span><?php
                             }
                             ?>
                             <span class="icon-<?= ($lp_success_status === "passed" ? 'done' : 'close'); ?>"></span>
@@ -532,9 +534,11 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     if ($content_type == "web_step1") {
                         ?><div class="kalamun-card_prgbar empty"></div><?php
                     } elseif ($content_type == "web_step2" && $has_progress) {
-                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= (max(50, $lp_percent) - 50) * 2; ?>"></meter></div><?php
+                        /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= (max(50, $lp_percent) - 50) * 2; ?>"></meter></div><?php */
+                        ?><div class="kalamun-card_prgbar"><?= $this->plugin->txt('in_progress'); ?></div><?php
                     } elseif ($type !== "file" && $has_progress) {
-                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
+                        /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php */
+                        ?><div class="kalamun-card_prgbar"><?= $this->plugin->txt($this->getLabelFromPercent($lp_percent)); ?></div><?php
                     } else {
                         ?><div class="kalamun-card_prgbar empty"></div><?php
                     }
