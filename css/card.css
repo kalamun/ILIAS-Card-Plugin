@@ -92,8 +92,10 @@
     top: 0;
     left: 0;
     width: 100%;
+    color: var(--color-black);
     background: var(--color-white);
-    padding-bottom: 6px;
+    font-size: var(--font-size-xsmall);
+    text-align: center;
 }
 .kalamun-card .kalamun-card_prgbar .dci-meter .dci-meter-value {
     bottom: 0 !important;
