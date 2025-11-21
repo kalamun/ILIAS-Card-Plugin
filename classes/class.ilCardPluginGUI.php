@@ -335,7 +335,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     public function getElementHTML(/* string */ $a_mode, /* array */ $a_properties, /* string */ $a_plugin_version) /* : string */
     {
         $ref_id = $a_properties['ref_id'];
-        $obj = ilObjectFactory::getInstanceByRefId($ref_id);
+        $obj = ilObjectFactory::getInstanceByRefId($ref_id, false);
+        if (empty($obj)) return "Invalid object";
+        
         $obj_id = $obj->getId();
         $lp_mode = 0; //$obj->getLPMode();
         $type = $obj->getType();
