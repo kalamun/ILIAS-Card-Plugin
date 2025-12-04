@@ -5,8 +5,9 @@ download#:#Download
 downloaded#:#Download
 not_started#:#
 in_progress#:#Resume
-completed#:#Ended
-failed#:#Not passed
+completed#:#Restart
+played#:#Replay
+failed#:#Retry
 mandatory#:#Mandatory to be completed
 start#:#Start
 open#:#Open
@@ -32,4 +33,4 @@ web_completed#:#Completed
 progress_downloaded#:#Done
 progress_passed#:#Passed
 progress_in_progress#:#In progress
-progress_failed#:#Failed
+progress_failed#:#Not passed

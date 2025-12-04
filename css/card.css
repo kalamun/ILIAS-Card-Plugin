@@ -97,6 +97,16 @@
     font-size: var(--font-size-xsmall);
     text-align: center;
 }
+.kalamun-card .kalamun-card_prgbar[data-status="not_started"] {
+    color: transparent;
+}
+.kalamun-card .kalamun-card_prgbar[data-status="in_progress"] {
+    background: var(--color-yellow);
+}
+.kalamun-card .kalamun-card_prgbar[data-status="completed"] {
+    background: var(--color-green);
+    color: var(--color-white);
+}
 .kalamun-card .kalamun-card_prgbar .dci-meter .dci-meter-value {
     bottom: 0 !important;
     line-height: 100%;

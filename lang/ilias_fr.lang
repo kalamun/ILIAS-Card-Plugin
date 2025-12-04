@@ -5,7 +5,8 @@ download#:#Télécharger
 downloaded#:#Téléchargé
 not_started#:#.
 in_progress#:#Reprendre
-completed#:#Effectué
+completed#:#Recommencer
+played#:#Rejouer
 failed#:#Recommencer
 mandatory#:#Obligatoire à compléter
 start#:#Démarrer
