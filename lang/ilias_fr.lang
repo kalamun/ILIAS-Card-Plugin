@@ -4,9 +4,9 @@ edit_input_field#:#Modifier la Card
 download#:#Télécharger
 downloaded#:#Téléchargé
 not_started#:#.
-in_progress#:#En cours
+in_progress#:#Reprendre
 completed#:#Effectué
-failed#:#À refaire
+failed#:#Recommencer
 mandatory#:#Obligatoire à compléter
 start#:#Démarrer
 open#:#Ouvrir
@@ -25,3 +25,11 @@ type#:#Type de contenu
 auto#:#Auto-detect
 web_step1#:#Web, auto-évaluation
 web_step2#:#Web, évaluation finale
+web_locked#:#Accés verrouillé
+web_start#:#Commencer
+web_inprogress#:#En cours
+web_completed#:#Terminé
+progress_downloaded#:#Effectué
+progress_passed#:#Réussi
+progress_in_progress#:#En cours
+progress_failed#:#Echoué

@@ -2,9 +2,9 @@ cmd_insert#:#Insert Card
 content_plugin_version#:#Content last edited with version
 edit_input_field#:#Edit Card
 download#:#Download
-downloaded#:#Downloaded
+downloaded#:#Download
 not_started#:#
-in_progress#:#In progress
+in_progress#:#Resume
 completed#:#Ended
 failed#:#Not passed
 mandatory#:#Mandatory to be completed
@@ -25,3 +25,11 @@ type#:#Content type
 auto#:#Auto-detect
 web_step1#:#Web, self-evaluation
 web_step2#:#Web, final evaluation
+web_locked#:#Locked
+web_start#:#Start
+web_inprogress#:#In progress
+web_completed#:#Completed
+progress_downloaded#:#Done
+progress_passed#:#Passed
+progress_in_progress#:#In progress
+progress_failed#:#Failed
