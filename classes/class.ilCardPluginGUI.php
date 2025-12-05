@@ -658,7 +658,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="completed">' . $this->plugin->txt("progress_downloaded") . '</div>';
             $output["cta"] = '<div class="kalamun-card_progress downloaded completed"><button class="outlined">' . $this->plugin->txt('downloaded') . ' <span class="icon-right"></span></button></div>';
         }
-        elseif (!empty($lp_completed) && $type == "sahs") {
+        elseif (!empty($lp_completed) && $type == "sahs") { // Scorm
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="completed">' . $this->plugin->txt("progress_passed") . '</div>';
             $output["cta"] = '<div class="kalamun-card_progress completed"><button class="outlined">' . $this->plugin->txt('ended') . ' <span class="icon-right"></span></button></div>';
         }
         elseif (!empty($lp_completed)) {
