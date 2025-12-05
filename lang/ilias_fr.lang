@@ -9,7 +9,7 @@ completed#:#Recommencer
 played#:#Rejouer
 failed#:#Recommencer
 mandatory#:#Obligatoire à compléter
-start#:#Démarrer
+start#:#Commencer
 open#:#Ouvrir
 layout#:#Mise-en-page
 square#:#Carré
@@ -30,8 +30,10 @@ web_locked#:#Accés verrouillé
 web_start#:#Commencer
 web_inprogress#:#En cours
 web_completed#:#Terminé
+progress_not_started#:#.
 progress_downloaded#:#Effectué
-progress_completed#:#Effectué
+progress_finished#:#Effectué
+progress_completed#:#Réussi
 progress_passed#:#Réussi
 progress_in_progress#:#En cours
 progress_failed#:#Echoué

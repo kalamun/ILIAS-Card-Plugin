@@ -30,7 +30,10 @@ web_locked#:#Locked
 web_start#:#Start
 web_inprogress#:#In progress
 web_completed#:#Completed
+progress_not_started#:#.
 progress_downloaded#:#Done
+progress_finished#:#Completed
+progress_completed#:#Passed
 progress_passed#:#Passed
 progress_in_progress#:#In progress
 progress_failed#:#Not passed

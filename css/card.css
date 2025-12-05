@@ -107,6 +107,10 @@
     background: var(--color-green);
     color: var(--color-white);
 }
+.kalamun-card .kalamun-card_prgbar[data-status="failed"] {
+    background: var(--color-red);
+    color: var(--color-white);
+}
 .kalamun-card .kalamun-card_prgbar .dci-meter .dci-meter-value {
     bottom: 0 !important;
     line-height: 100%;
