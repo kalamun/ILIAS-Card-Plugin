@@ -607,7 +607,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         ];
 
         if ($content_type == "web_step1") {
-            $output["progress_bar"] = '<div class="kalamun-card_prgbar empty" data-status="empty"></div>';
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
 
             if (!$has_progress || $lp_percent == 0) {
                 $output["cta"] = '<div class="kalamun-card_progress"><button>' . $this->plugin->txt("web_start") .' <span class="icon-right"></span></button></div>';
@@ -622,7 +622,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= (max(50, $lp_percent) - 50) * 2; ?>"></meter></div><?php */
                 $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="inprogress">' . $this->plugin->txt('in_progress') . '</div>';
             } else {
-                $output["progress_bar"] = '<div class="kalamun-card_prgbar empty" data-status="empty"></div>';
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
             }
 
             if ($status !== 'online' || !$has_progress || $lp_percent < 50) {
@@ -636,22 +636,22 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             }
         }
         elseif ($status !== 'online') {
-            $output["progress_bar"] = '<div class="kalamun-card_prgbar empty" data-status="empty"></div>';
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
             $output["cta"] = '
                 <div class="kalamun-card_main-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></div>
                 <div class="kalamun-card_offline"><button class="outlined">' . $this->plugin->txt('not_available') . '</button></div>
             ';
         }
         elseif (empty($permalink)) {
-            $output["progress_bar"] = '<div class="kalamun-card_prgbar empty" data-status="empty"></div>';
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
             $output["cta"] = '<div class="kalamun-card_noprogress"><button class="outlined">' . $this->plugin->txt(time() < $ending_date_timestamp ? 'opens_10_minutes_before' : 'ended') . '</button></div>';
         }
         elseif ($type == "xjit") { // Jitsi
-            $output["progress_bar"] = '<div class="kalamun-card_prgbar empty" data-status="empty"></div>';
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
             $output["cta"] = '<div class="kalamun-card_noprogress"><button>' . $this->plugin->txt('join_call') . ' <span class="icon-right"></span></button></div>';
         }
         elseif (!$has_progress) {
-            $output["progress_bar"] = '<div class="kalamun-card_prgbar empty" data-status="empty"></div>';
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
             $output["cta"] = '<div class="kalamun-card_noprogress"><button>' . $this->plugin->txt('open') . ' <span class="icon-right"></span></button></div>';
         }
         elseif (!empty($lp_downloaded)) {
@@ -663,7 +663,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php */
                 $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="' . $this->getLabelFromPercent($lp_percent) . '">' . $this->plugin->txt("progress_" . $this->getLabelFromPercent($lp_percent)) . '</div>';
             } else {
-                $output["progress_bar"] = '<div class="kalamun-card_prgbar empty" data-status="completed">' . $this->plugin->txt('progress_finished') . '</div>';
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="completed">' . $this->plugin->txt('progress_finished') . '</div>';
             }
             $output["cta"] = '<div class="kalamun-card_progress completed"><button class="outlined">' . $this->plugin->txt('completed') . ' <span class="icon-right"></span></button></div>';
         }
@@ -680,7 +680,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $output["cta"] = '<div class="kalamun-card_progress failed"><button>' . $this->plugin->txt('failed') . ' <span class="icon-right"></span></button></div>';
         }
         elseif ($type == "file") {
-            $output["progress_bar"] = '<div class="kalamun-card_prgbar empty" data-status="empty"></div>';
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
             $output["cta"] = '<div class="kalamun-card_progress not-started"><button>' . $this->plugin->txt('download') . ' <span class="icon-right"></span></button></div>';
         }
         else {
@@ -688,7 +688,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php */
                 $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="' . $this->getLabelFromPercent($lp_percent) . '">' . $this->plugin->txt($this->getLabelFromPercent($lp_percent)) . '</div>';
             } else {
-                $output["progress_bar"] = '<div class="kalamun-card_prgbar empty" data-status="empty"></div>';
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
             }
             $output["cta"] = '<div class="kalamun-card_progress not-started"><button>' . $this->plugin->txt('start') . ' <span class="icon-right"></span></button></div>';
         }

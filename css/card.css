@@ -111,6 +111,12 @@
     background: var(--color-red);
     color: var(--color-white);
 }
+.kalamun-card .kalamun-card_prgbar[data-status="empty"] {
+    color: transparent;
+}
+.kalamun-card .kalamun-card_prgbar[data-status="empty"]::after {
+    content: '.';
+}
 .kalamun-card .kalamun-card_prgbar .dci-meter .dci-meter-value {
     bottom: 0 !important;
     line-height: 100%;
