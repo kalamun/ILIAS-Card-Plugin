@@ -508,7 +508,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
 
         if ($type == "grp" && $obj->isRegistrationEnabled()) $status = 'online';
         
-        $ui_elements = $this->getUIElements($type, $content_type, $status, $permalink, $has_progress, $lp_percent, $lp_completed, $lp_in_progress, $lp_downloaded, $lp_failed, $ending_date_timestamp);
+        $ui_elements = $this->getUIElements($type, $content_type, $status, $permalink, $has_progress, $lp_percent, $lp_completed, $lp_in_progress, $lp_downloaded, $lp_failed, $ending_date_timestamp, $has_tests, $lp_scores);
 
         ob_start();
         ?>
@@ -600,7 +600,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     }
 
 
-    private function getUIElements($type, $content_type, $status, $permalink, $has_progress, $lp_percent, $lp_completed, $lp_in_progress, $lp_downloaded, $lp_failed, $ending_date_timestamp) : array {
+    private function getUIElements($type, $content_type, $status, $permalink, $has_progress, $lp_percent, $lp_completed, $lp_in_progress, $lp_downloaded, $lp_failed, $ending_date_timestamp, $has_tests, $lp_scores) : array {
         $output = [
             "progress_bar" => "",
             "cta" => "",
@@ -659,7 +659,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $output["cta"] = '<div class="kalamun-card_progress downloaded completed"><button class="outlined">' . $this->plugin->txt('downloaded') . ' <span class="icon-right"></span></button></div>';
         }
         elseif (!empty($lp_completed) && $type == "sahs") { // Scorm
-            if ($has_progress) {
+            if ($has_progress && $has_tests && count($lp_scores) > 0) {
                 /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php */
                 $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="' . $this->getLabelFromPercent($lp_percent) . '">' . $this->plugin->txt("progress_" . $this->getLabelFromPercent($lp_percent)) . '</div>';
             } else {
@@ -684,7 +684,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $output["cta"] = '<div class="kalamun-card_progress not-started"><button>' . $this->plugin->txt('download') . ' <span class="icon-right"></span></button></div>';
         }
         else {
-            if ($has_progress) {
+            if ($has_progress && $has_tests && count($lp_scores) > 0) {
                 /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php */
                 $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="' . $this->getLabelFromPercent($lp_percent) . '">' . $this->plugin->txt($this->getLabelFromPercent($lp_percent)) . '</div>';
             } else {
