@@ -7,7 +7,7 @@ not_started#:#
 in_progress#:#Resume
 completed#:#Restart
 played#:#Replay
-failed#:#Retry
+failed#:#Restart
 mandatory#:#Mandatory to be completed
 start#:#Start
 open#:#Open
@@ -36,4 +36,4 @@ progress_finished#:#Completed
 progress_completed#:#Passed
 progress_passed#:#Passed
 progress_in_progress#:#In progress
-progress_failed#:#Not passed
+progress_failed#:#Failed
