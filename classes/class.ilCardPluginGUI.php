@@ -521,7 +521,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     <?= $typical_learning_time ? '<div class="kalamun-card_learning-time"><span class="icon-clock"></span> ' . $nice_learning_time . '</div>' : ''; ?>
                     <?= (!$has_tests && ($lp_completed || $lp_downloaded)) ? '<div class="kalamun-card_status"><span class="icon-done"></span></div>' : ''; ?>
                     <?php
-                    if ($has_tests && count($lp_scores) > 0 && $lp_completed) {
+                    if ($has_tests && count($lp_scores) > 0 && ($lp_completed || $lp_failed)) {
                         ?>
                         <div class="kalamun-card_status kalamun-card_scores result-<?= $lp_success_status; ?>">
                             <?php
