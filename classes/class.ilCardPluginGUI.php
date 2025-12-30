@@ -624,8 +624,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             } else {
                 $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
             }
-
+            
             if ($status !== 'online' || !$has_progress || $lp_percent < 50) {
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
                 $output["cta"] = '<div class="kalamun-card_progress"><button class="outlined">' . $this->plugin->txt("web_locked") . '</button></div>';
             } elseif ($lp_percent == 50) {
                 $output["cta"] = '<div class="kalamun-card_progress"><button>' . $this->plugin->txt("web_start") .' <span class="icon-right"></span></button></div>';
