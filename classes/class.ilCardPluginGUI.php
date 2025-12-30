@@ -512,7 +512,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
 
         ob_start();
         ?>
-        <div class="kalamun-card" data-status="<?= $status; ?>" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
+        <div class="kalamun-card" data-status="<?= $status; ?>" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-content-type="<?= $content_type; ?>" data-id="<?= $ref_id; ?>">
             <?php if ($this->ctrl->getCmd() == "edit") {
                 ?><div class="kalamun-card_prevent-link"></div><?php
             } ?>
