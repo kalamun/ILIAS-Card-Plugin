@@ -503,7 +503,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_completed = true;
         }
         
-        $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
+        $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst", "copa"]);
 
         // if the auto-evaluation scored 50 (1st part finished), put the pt1 card offline (user can't re-access to the first part)
         if ($content_type == "web_step1" && ($has_progress && $lp_percent >= 50)) $status = 'offline';
@@ -609,6 +609,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             "progress_bar" => "",
             "cta" => "",
         ];
+
+        /* the class kalamun-card_progress is used to track progress inside the accordions */
 
         if ($content_type == "web_step1") {
             $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
