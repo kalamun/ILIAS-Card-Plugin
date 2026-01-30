@@ -148,7 +148,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $form = new ilPropertyFormGUI();
 
         $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
-        $subTree = $this->tree->getSubTree($this->tree->getNodeData($root_course['ref_id']));
+        if (!empty($root_course['ref_id'])) {
+            $subTree = $this->tree->getSubTree($this->tree->getNodeData($root_course['ref_id']));
+        }
         
         $select_options = [];
         foreach($subTree as $obj) {
