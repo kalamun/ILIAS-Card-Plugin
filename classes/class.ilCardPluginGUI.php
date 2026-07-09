@@ -24,12 +24,10 @@
  */
 class ilCardPluginGUI extends ilPageComponentPluginGUI
 {
-    protected /* ilLanguage */ $lng;
+    protected ilLanguage $lng;
     protected ilCtrl $ctrl;
     protected ilGlobalTemplateInterface $tpl;
     protected ilTree $tree;
-    protected ilObjectService $object;
-    protected ilObjUser $user;
 
     public function __construct()
     {
@@ -67,7 +65,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     private static function get_inline_js() : string
     {
         $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
-        $mandatory_objects = dciCourse::get_mandatory_objects($root_course['obj_id']);
+        $mandatory_objects = [];
+        if (!empty($root_course)) {
+            $mandatory_objects = dciCourse::get_mandatory_objects($root_course['obj_id']);
+        }
         
         ob_start();
         ?>
@@ -148,7 +149,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $form = new ilPropertyFormGUI();
 
         $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
-        $subTree = $this->tree->getSubTree($this->tree->getNodeData($root_course['ref_id']));
+        $subTree = [];
+        if (!empty($root_course)) {
+            $subTree = $this->tree->getSubTree($this->tree->getNodeData($root_course['ref_id']));
+        }
         
         $select_options = [];
         foreach($subTree as $obj) {
@@ -184,12 +188,12 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($input_description);
 
         // dates
-        $starting_date = new ilDateTimeInputGUI($this->lng->txt("starting_date"), 'starting_date');
+        $starting_date = new ilDateTimeInputGUI($this->plugin->txt("starting_date"), 'starting_date');
         $starting_date->setShowTime(true);
         $starting_date->setRequired(false);
         $form->addItem($starting_date);
 
-        $duration = new ilDurationInputGUI($this->lng->txt("duration"), 'duration');
+        $duration = new ilDurationInputGUI($this->plugin->txt("duration"), 'duration');
         $duration->setRequired(false);
         $form->addItem($duration);
 
@@ -208,7 +212,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($select_layout);
 
         // mandatory
-        $input_mandatory = new ilCheckBoxInputGUI($this->lng->txt("mandatory"), 'mandatory');
+        $input_mandatory = new ilCheckboxInputGUI($this->plugin->txt("mandatory"), 'mandatory');
         $input_mandatory->setRequired(false);
         $form->addItem($input_mandatory);
         
@@ -316,7 +320,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
      * @param string    page mode (edit, presentation, print, preview, offline)
      * @return string   html code
      */
-    public function getElementHTML(/* string */ $a_mode, /* array */ $a_properties, /* string */ $a_plugin_version) /* : string */
+    public function getElementHTML(string $a_mode, array $a_properties, string $a_plugin_version) : string
     {
         $ref_id = $a_properties['ref_id'];
         $obj = ilObjectFactory::getInstanceByRefId($ref_id);
