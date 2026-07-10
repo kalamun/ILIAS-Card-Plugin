@@ -194,18 +194,18 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $starting_date->setRequired(false);
         $form->addItem($starting_date);
 
-        $ending_date = new ilDateTimeInputGUI($this->lng->txt("ending_date"), 'card_ending_date');
+        $ending_date = new ilDateTimeInputGUI($this->plugin->txt("ending_date"), 'card_ending_date');
         $ending_date->setShowTime(true);
         $ending_date->setRequired(false);
         $form->addItem($ending_date);
 
-        $duration = new ilDurationInputGUI($this->lng->txt("duration"), 'card_duration');
+        $duration = new ilDurationInputGUI($this->plugin->txt("duration"), 'card_duration');
         $duration->setShowDays(true);
         $duration->setRequired(false);
         $form->addItem($duration);
 
         // type
-        $select_type = new ilSelectInputGUI($this->plugin->txt("type"));
+        $select_type = new ilSelectInputGUI($this->plugin->txt("card_type"));
         $select_type->setPostVar("card_type");
         $select_type->setOptions(["" => $this->plugin->txt("auto"), "web_step1" => $this->plugin->txt("web_step1"), "web_step2" => $this->plugin->txt("web_step2")]);
         $select_type->setRequired(false);
