@@ -1,23 +1,39 @@
 cmd_insert#:#Insérer une Card
 content_plugin_version#:#Contenu modifié pour la dernière fois avec la version
 edit_input_field#:#Modifier la Card
+download#:#Télécharger
 downloaded#:#Téléchargé
-in_progress#:#En cours
-completed#:#Effectué
-failed#:#À refaire
+not_started#:#.
+in_progress#:#Reprendre
+completed#:#Recommencer
+played#:#Rejouer
+failed#:#Recommencer
 mandatory#:#Obligatoire à compléter
-start#:#Démarrer
+start#:#Commencer
 open#:#Ouvrir
 layout#:#Mise-en-page
 square#:#Carré
 wide#:#Large
 starting_date#:#Date de début
+ending_date#:#Date de fin
 duration#:#Durée
 opens_10_minutes_before#:#Ouvre 10 minutes avant
 ended#:#Terminé
 join_call#:#Participer
 score#:#score
 not_available#:#Pas disponible
-card_type#:#Type de card
-auto#:#Normale
-webscorm#:#Webscorm
+card_type#:#Type de contenu
+auto#:#Auto-detect
+web_step1#:#Web, auto-évaluation
+web_step2#:#Web, évaluation finale
+web_locked#:#Accés verrouillé
+web_start#:#Commencer
+web_inprogress#:#En cours
+web_completed#:#Terminé
+progress_not_started#:#.
+progress_downloaded#:#Effectué
+progress_finished#:#Effectué
+progress_completed#:#Réussi
+progress_passed#:#Réussi
+progress_in_progress#:#En cours
+progress_failed#:#Echoué

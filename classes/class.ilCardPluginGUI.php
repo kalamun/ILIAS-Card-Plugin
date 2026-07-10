@@ -149,8 +149,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $form = new ilPropertyFormGUI();
 
         $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
+
         $subTree = [];
-        if (!empty($root_course)) {
+        if (!empty($root_course['ref_id'])) {
             $subTree = $this->tree->getSubTree($this->tree->getNodeData($root_course['ref_id']));
         }
         
@@ -193,15 +194,21 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $starting_date->setRequired(false);
         $form->addItem($starting_date);
 
-        $duration = new ilDurationInputGUI($this->plugin->txt("duration"), 'card_duration');
+        $ending_date = new ilDateTimeInputGUI($this->lng->txt("ending_date"), 'card_ending_date');
+        $ending_date->setShowTime(true);
+        $ending_date->setRequired(false);
+        $form->addItem($ending_date);
+
+        $duration = new ilDurationInputGUI($this->lng->txt("duration"), 'card_duration');
+        $duration->setShowDays(true);
         $duration->setRequired(false);
         $form->addItem($duration);
 
         // type
         $select_type = new ilSelectInputGUI($this->plugin->txt("type"));
         $select_type->setPostVar("card_type");
-        $select_type->setOptions(["" => $this->plugin->txt("auto"), "webscorm" => $this->plugin->txt("webscorm")]);
-        $select_type->setRequired(true);
+        $select_type->setOptions(["" => $this->plugin->txt("auto"), "web_step1" => $this->plugin->txt("web_step1"), "web_step2" => $this->plugin->txt("web_step2")]);
+        $select_type->setRequired(false);
         $form->addItem($select_type);
 
         // layout
@@ -227,8 +234,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $input_title->setValue($prop['title']);
             $input_description->setValue($prop['description']);
             $starting_date->setDate(new ilDateTime($prop['starting_date'], IL_CAL_DATETIME));
-            $duration->setHours(explode(":", $prop['duration'])[0]);
-            $duration->setMinutes(explode(":", $prop['duration'])[1]);
+            $ending_date->setDate(new ilDateTime($prop['ending_date'], IL_CAL_DATETIME));
+            $duration->setDays(floor(intval(explode(":", $prop['duration'])[0])/24));
+            $duration->setHours(intval(explode(":", $prop['duration'])[0])%24);
+            $duration->setMinutes(intval(explode(":", $prop['duration'])[1]));
             $select_layout->setValue($prop['layout']);
             $select_type->setValue($prop['type']);
 
@@ -256,13 +265,15 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if ($form->checkInput()) {
             $properties = $this->getProperties();
 
-            $properties['ref_id'] = $form->getInput('card_ref_id');
-            $properties['title'] = $form->getInput('card_title');
-            $properties['description'] = $form->getInput('card_description');
-            $properties['type'] = $form->getInput('card_type');
-            $properties['layout'] = $form->getInput('card_layout');
-            $properties['starting_date'] = $form->getInput('card_starting_date');
-            $properties['duration'] = implode(":", $form->getInput('card_duration'));
+            $properties['ref_id'] = $form->getInput('ref_id');
+            $properties['title'] = $form->getInput('title');
+            $properties['description'] = $form->getInput('description');
+            $properties['type'] = $form->getInput('type');
+            $properties['layout'] = $form->getInput('layout');
+            $properties['starting_date'] = $form->getInput('starting_date');
+            $properties['ending_date'] = $form->getInput('ending_date');
+            $duration = $form->getInput('duration');
+            $properties['duration'] = (intval($duration["dd"])*24 + intval($duration["hh"])) . ':' . intval($duration["mm"]);
 
             $mandatory = $form->getInput('card_mandatory');
             $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
@@ -315,6 +326,12 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $this->returnToParent();
     }
 
+    private function getLabelFromPercent($lp_percent) {
+        if (empty($lp_percent)) return 'not_started';
+        if ($lp_percent == 100) return 'completed';
+        return 'in_progress';
+    }
+
     /**
      * Get HTML for element
      * @param string    page mode (edit, presentation, print, preview, offline)
@@ -323,7 +340,9 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     public function getElementHTML(string $a_mode, array $a_properties, string $a_plugin_version) : string
     {
         $ref_id = $a_properties['ref_id'];
-        $obj = ilObjectFactory::getInstanceByRefId($ref_id);
+        $obj = ilObjectFactory::getInstanceByRefId($ref_id, false);
+        if (empty($obj)) return "Invalid object";
+        
         $obj_id = $obj->getId();
         $lp_mode = 0; //$obj->getLPMode();
         $type = $obj->getType();
@@ -332,20 +351,23 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         $content_type = !empty($a_properties['type']) ? $a_properties['type'] : "";
         $layout = !empty($a_properties['layout']) ? $a_properties['layout'] : "square";
         $starting_date = !empty($a_properties['starting_date']) ? $a_properties['starting_date'] : false;
+        $ending_date = !empty($a_properties['ending_date']) ? $a_properties['ending_date'] : false;
         $duration = !empty($a_properties['duration']) ? explode(":", $a_properties['duration']) : false;
 
         $user_has_access = $this->rbac->checkAccessOfUser($this->user->getId(), "read", $ref_id);
         $status = ($type !== "file" && ($obj->getOfflineStatus() || !$user_has_access)) ? 'offline' : 'online';
 
         $starting_date_timestamp = false;
-        $ending_date_timestamp = false;
         if (!empty($starting_date)) {
             $date = DateTime::createFromFormat('Y-m-d H:i:s', $starting_date);
             $starting_date_timestamp = $date->getTimestamp();
+        }
 
-            if (!empty($duration) && !empty($starting_date_timestamp)) {
-                $ending_date_timestamp = $starting_date_timestamp + ($duration[0] * 60 * 60) + ($duration[1] * 60);
-            }
+        $ending_date_timestamp = false;
+        if (!empty($ending_date)) {
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', $ending_date);
+            $ending_date_timestamp = $date->getTimestamp();
+            if ($ending_date_timestamp < $starting_date_timestamp) $ending_date_timestamp = $starting_date_timestamp;
         }
 
         // thumbnail
@@ -444,7 +466,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_downloaded = $lp['visits'] > 0 && $type == "file";
             $has_tests = false;
             $lp_success_status = "unknown";
-            $lp_completion_status = "unknown";
             $lp_scores = [];
             
             $lp_progresses = [];
@@ -458,14 +479,13 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                         if ($progress->c_raw == false) continue;
                         $lp_scores[] = round($progress->c_raw);
                         $lp_success_status = $progress->success_status;
-                        $lp_completion_status = $progress->completion_status;
                     }
                 }
             }
         }
         
         $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds']))) . " min";
-        $nice_learning_time = str_replace("00:", "", gmdate("H:i", $typical_learning_time)) . " min";
+        $nice_learning_time = (!empty($duration[0]) ? $duration[0] . "h " : "") . $duration[1] . "min";
         
         if( empty( $lp_percent ) && ($lp_completed || $lp_downloaded)) {
             $lp_percent = 100;
@@ -484,11 +504,20 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_completed = true;
         }
         
-        $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst"]);
+        $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst", "copa"]);
+
+        // if the auto-evaluation scored 50 (1st part finished), put the pt1 card offline (user can't re-access to the first part)
+        if ($content_type == "web_step1" && ($has_progress && $lp_percent >= 50)) $status = 'offline';
+        // if the auto-evaluation scored less than 50, put the pt2 card offline (user can't start the second part)
+        if ($content_type == "web_step2" && (!$has_progress || $lp_percent < 50)) $status = 'offline';
+
+        if ($type == "grp" && $obj->isRegistrationEnabled()) $status = 'online';
+        
+        $ui_elements = $this->getUIElements($type, $content_type, $status, $permalink, $has_progress, $lp_percent, $lp_completed, $lp_in_progress, $lp_downloaded, $lp_failed, $ending_date_timestamp, $has_tests, $lp_scores);
 
         ob_start();
         ?>
-        <div class="kalamun-card" data-status="<?= $status; ?>" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-id="<?= $ref_id; ?>">
+        <div class="kalamun-card" data-status="<?= $status; ?>" data-layout="<?= $layout; ?>" data-type="<?= $type; ?>" data-content-type="<?= $content_type; ?>" data-id="<?= $ref_id; ?>" data-has-progress="<?= $has_progress; ?>" data-lp-percent="<?= $lp_percent; ?>" data-has-tests="<?= $has_tests; ?>">
             <?php if ($this->ctrl->getCmd() == "edit") {
                 ?><div class="kalamun-card_prevent-link"></div><?php
             } ?>
@@ -497,30 +526,21 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     <?= $typical_learning_time ? '<div class="kalamun-card_learning-time"><span class="icon-clock"></span> ' . $nice_learning_time . '</div>' : ''; ?>
                     <?= (!$has_tests && ($lp_completed || $lp_downloaded)) ? '<div class="kalamun-card_status"><span class="icon-done"></span></div>' : ''; ?>
                     <?php
-                    if ($has_tests && count($lp_scores) > 0) {
+                    if ($has_tests && count($lp_scores) > 0 && ($lp_completed || $lp_failed)) {
                         ?>
                         <div class="kalamun-card_status kalamun-card_scores result-<?= $lp_success_status; ?>">
                             <?php
-                            if (count($lp_scores) > 0) {
-                                foreach ($lp_scores as $score) {
-                                    if ($score == "") continue;
-                                    ?><span class="score"><?= $this->plugin->txt('score'); ?> <?= $score; ?>%</span><?php
-                                }
+                            foreach ($lp_scores as $score) {
+                                if ($score == "") continue;
+                                ?><span class="score"><?= $this->plugin->txt('score'); ?> <?= $score; ?>%</span><?php
                             }
                             ?>
                             <span class="icon-<?= ($lp_success_status === "passed" ? 'done' : 'close'); ?>"></span>
                         </div>
                         <?php
                     }
-
-                    if ($content_type == "webscorm" && $has_progress) {
-                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent * 2; ?>"></meter></div><?php
-                    } elseif ($type !== "file" && $has_progress) {
-                        ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php
-                    } else {
-                        ?><div class="kalamun-card_prgbar empty"></div><?php
-                    }
                     ?>
+                    <?= $ui_elements['progress_bar']; ?>
                     <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
                         <?= (!empty($thumbnail_url) ? '<img src="' . $thumbnail_url . '" class="kalamun-card_thumbnail" />' : '<span class="kalamun-card_thumbnail"></span>'); ?>
                     <?= ($status === 'online' && !empty($permalink)) ? '</a>' : ''; ?>
@@ -558,58 +578,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     ?>
                     <div class="kalamun-card_cta">
                         <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
-                            <?php
-                            if ($status !== 'online') { ?>
-                                <div class="kalamun-card_main-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></div>
-                                <div class="kalamun-card_offline"><button class="outlined"><?= $this->plugin->txt('not_available'); ?></button></div>
-                            <?php }
-                            elseif ($content_type == "webscorm") {
-                                if (!$has_progress) {
-                                    ?>
-                                    <div class="kalamun-card_progress"><button>Commencer</button></div>
-                                    <?php
-                                } elseif ($lp_percent < 50) {
-                                    ?>
-                                    <div class="kalamun-card_progress"><button>En cours</button></div>
-                                    <?php
-                                } elseif ($lp_percent < 100) {
-                                    ?>
-                                    <div class="kalamun-card_progress"><button>A refaire avec progression</button></div>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <div class="kalamun-card_progress"><button>Terminé</button></div>
-                                    <?php
-                                }
-                            }
-                            elseif (empty($permalink)) { ?>
-                                <div class="kalamun-card_noprogress"><button class="outlined"><?= $this->plugin->txt(time() < $ending_date_timestamp ? 'opens_10_minutes_before' : 'ended'); ?></button></div>
-                            <?php }
-                            elseif (!$type == "xjit") { ?>
-                                <div class="kalamun-card_noprogress"><button><?= $this->plugin->txt('join_call'); ?> <span class="icon-right"></span></button></div>
-                            <?php }
-                            elseif (!$has_progress) { ?>
-                                <div class="kalamun-card_noprogress"><button><?= $this->plugin->txt('open'); ?> <span class="icon-right"></span></button></div>
-                            <?php }
-                            elseif (!empty($lp_downloaded)) { ?>
-                                <div class="kalamun-card_progress downloaded completed"><button class="outlined"><?= $this->plugin->txt('downloaded'); ?> <span class="icon-right"></span></button></div>
-                            <?php }
-                            elseif (!empty($lp_completed) && $type == "sahs") { ?>
-                                <div class="kalamun-card_progress completed"><button class="outlined"><?= $this->plugin->txt('ended'); ?> <span class="icon-right"></span></button></div>
-                            <?php }
-                            elseif (!empty($lp_completed)) { ?>
-                                <div class="kalamun-card_progress completed"><button class="outlined"><?= $this->plugin->txt('completed'); ?> <span class="icon-right"></span></button></div>
-                            <?php }
-                            elseif (!empty($lp_in_progress)) { ?>
-                                <div class="kalamun-card_progress in-progress"><button><?= $this->plugin->txt('in_progress'); ?> <span class="icon-right"></span></button></div>
-                            <?php }
-                            elseif (!empty($lp_failed)) { ?>
-                                <div class="kalamun-card_progress failed"><button><?= $this->plugin->txt('failed'); ?> <span class="icon-right"></span></button></div>
-                            <?php }
-                            else { ?>
-                                <div class="kalamun-card_progress not-started"><button><?= $this->plugin->txt('start'); ?> <span class="icon-right"></span></button></div>
-                            <?php }
-                            ?>
+                            <?= $ui_elements["cta"]; ?>
                         <?= ($status === 'online' && !empty($permalink)) ? '</a>' : ''; ?>
                     </div>
                 </div>
@@ -633,5 +602,106 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         } else {
             throw new ilException('not allowed');
         }
+    }
+
+
+    private function getUIElements($type, $content_type, $status, $permalink, $has_progress, $lp_percent, $lp_completed, $lp_in_progress, $lp_downloaded, $lp_failed, $ending_date_timestamp, $has_tests, $lp_scores) : array {
+        $output = [
+            "progress_bar" => "",
+            "cta" => "",
+        ];
+
+        /* the class kalamun-card_progress is used to track progress inside the accordions */
+
+        if ($content_type == "web_step1") {
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+
+            if (!$has_progress || $lp_percent == 0) {
+                $output["cta"] = '<div class="kalamun-card_progress"><button>' . $this->plugin->txt("web_start") .' <span class="icon-right"></span></button></div>';
+            } elseif ($lp_percent < 50) {
+                $output["cta"] = '<div class="kalamun-card_progress"><button>' . $this->plugin->txt("web_inprogress") . ' <span class="icon-right"></span></button></div>';
+            } else {
+                $output["cta"] = '<div class="kalamun-card_progress"><button class="outlined">' . $this->plugin->txt("web_completed") . '</button></div>';
+            }
+        }
+        elseif ($content_type == "web_step2") {
+            if ($has_progress) {
+                /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= (max(50, $lp_percent) - 50) * 2; ?>"></meter></div><?php */
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="inprogress">' . $this->plugin->txt('in_progress') . '</div>';
+            } else {
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+            }
+            
+            if ($status !== 'online' || !$has_progress || $lp_percent < 50) {
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+                $output["cta"] = '<div class="kalamun-card_progress"><button class="outlined">' . $this->plugin->txt("web_locked") . '</button></div>';
+            } elseif ($lp_percent == 50) {
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+                $output["cta"] = '<div class="kalamun-card_progress"><button>' . $this->plugin->txt("web_start") .' <span class="icon-right"></span></button></div>';
+            } elseif ($lp_percent < 100) {
+                $output["cta"] = '<div class="kalamun-card_progress"><button>' . $this->plugin->txt("web_inprogress") . ' <span class="icon-right"></span></button></div>';
+            } else {
+                $output["cta"] = '<div class="kalamun-card_progress"><button class="outlined">' . $this->plugin->txt("web_completed") .'</button></div>';
+            }
+        }
+        elseif ($status !== 'online') {
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+            $output["cta"] = '
+                <div class="kalamun-card_main-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg></div>
+                <div class="kalamun-card_offline"><button class="outlined">' . $this->plugin->txt('not_available') . '</button></div>
+            ';
+        }
+        elseif (empty($permalink)) {
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+            $output["cta"] = '<div class="kalamun-card_noprogress"><button class="outlined">' . $this->plugin->txt(time() < $ending_date_timestamp ? 'opens_10_minutes_before' : 'ended') . '</button></div>';
+        }
+        elseif ($type == "xjit") { // Jitsi
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+            $output["cta"] = '<div class="kalamun-card_noprogress"><button>' . $this->plugin->txt('join_call') . ' <span class="icon-right"></span></button></div>';
+        }
+        elseif (!$has_progress) {
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+            $output["cta"] = '<div class="kalamun-card_noprogress"><button>' . $this->plugin->txt('open') . ' <span class="icon-right"></span></button></div>';
+        }
+        elseif (!empty($lp_downloaded)) {
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="completed">' . $this->plugin->txt("progress_downloaded") . '</div>';
+            $output["cta"] = '<div class="kalamun-card_progress downloaded completed"><button class="outlined">' . $this->plugin->txt('downloaded') . ' <span class="icon-right"></span></button></div>';
+        }
+        elseif (!empty($lp_completed) && $type == "sahs") { // Scorm
+            if ($has_progress && $has_tests && count($lp_scores) > 0) {
+                /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php */
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="' . $this->getLabelFromPercent($lp_percent) . '">' . $this->plugin->txt("progress_" . $this->getLabelFromPercent($lp_percent)) . '</div>';
+            } else {
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="completed">' . $this->plugin->txt('progress_finished') . '</div>';
+            }
+            $output["cta"] = '<div class="kalamun-card_progress completed"><button class="outlined">' . $this->plugin->txt('completed') . ' <span class="icon-right"></span></button></div>';
+        }
+        elseif (!empty($lp_completed)) {
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="completed">' . $this->plugin->txt("progress_finished") . '</div>';
+            $output["cta"] = '<div class="kalamun-card_progress completed"><button class="outlined">' . $this->plugin->txt('completed') . ' <span class="icon-right"></span></button></div>';
+        }
+        elseif (!empty($lp_in_progress)) {
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="in_progress">' . $this->plugin->txt("progress_in_progress") . '</div>';
+            $output["cta"] = '<div class="kalamun-card_progress in-progress"><button>' . $this->plugin->txt('in_progress') . ' <span class="icon-right"></span></button></div>';
+        }
+        elseif (!empty($lp_failed)) {
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="failed">' . $this->plugin->txt("progress_failed") . '</div>';
+            $output["cta"] = '<div class="kalamun-card_progress failed"><button>' . $this->plugin->txt('failed') . ' <span class="icon-right"></span></button></div>';
+        }
+        elseif ($type == "file") {
+            $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+            $output["cta"] = '<div class="kalamun-card_progress not-started"><button>' . $this->plugin->txt('download') . ' <span class="icon-right"></span></button></div>';
+        }
+        else {
+            if ($has_progress && $has_tests && count($lp_scores) > 0) {
+                /* ?><div class="kalamun-card_prgbar"><meter min="0" max="100" value="<?= $lp_percent; ?>"></meter></div><?php */
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="' . $this->getLabelFromPercent($lp_percent) . '">' . $this->plugin->txt($this->getLabelFromPercent($lp_percent)) . '</div>';
+            } else {
+                $output["progress_bar"] = '<div class="kalamun-card_prgbar" data-status="empty"></div>';
+            }
+            $output["cta"] = '<div class="kalamun-card_progress not-started"><button>' . $this->plugin->txt('start') . ' <span class="icon-right"></span></button></div>';
+        }
+
+        return $output;
     }
 }

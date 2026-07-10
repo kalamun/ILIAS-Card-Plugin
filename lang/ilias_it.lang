@@ -2,6 +2,7 @@ cmd_insert#:#Inserire una Card
 content_plugin_version#:#Contenuto modificato l’ultima volta con la versione
 edit_input_field#:#Modificare la Card
 downloaded#:#Scaricato
+not_started#:#
 in_progress#:#In corso
 completed#:#Completato
 failed#:#Non superato
@@ -12,12 +13,14 @@ layout#:#Layout
 square#:#Quadrato
 wide#:#Largo
 starting_date#:#Data di inizio
+ending_date#:#Data di fine
 duration#:#Durata
 opens_10_minutes_before#:#Apre 10 minuti prima
 ended#:#Terminato
 join_call#:#Partecipa
 score#:#punti
 not_available#:#Non disponibile
-card_type#:#Tipo di Card
-auto#:#Normale
-webscorm#:#Webscorm
+card_type#:#Tipo di contenuto
+auto#:#Auto-rileva
+web_step1#:#Web, auto-valutazione
+web_step2#:#Web, valutazione finale

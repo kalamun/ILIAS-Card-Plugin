@@ -6,6 +6,46 @@
  */
 class ilCardExporter extends ilXmlExporter
 {
+    public function getXmlExportHeadDependencies(/* string */ $a_entity, /* string */ $a_target_release, /* array */ $a_ids) /* : array */
+    {
+        $deps = [];
+        foreach ($a_ids as $id) {
+            $properties = ilPageComponentPluginExporter::getPCProperties($id);
+
+            foreach(["ref_id", "thumbnail"] as $property) {
+                if (empty($properties[$property])) continue;
+
+                if ($property === "ref_id") {
+                    // I already have the ref id
+                    $ref_id = $properties[$property];
+                    $obj = ilObjectFactory::getInstanceByRefId($ref_id);
+                    if (!empty($obj)) {
+                        $obj_id = $obj->getId();
+                        $entity = $obj->getType();
+                    }
+                } else {
+                    // get ref_id from obj_id
+                    $obj_id = $properties[$property];
+                    $obj = ilObjectFactory::getInstanceByObjId($obj_id);
+                    $ref_id = $obj->getRefId();
+                    $entity = $obj->getType();
+                }
+
+                if (!empty(($ref_id)) && !empty(($entity))) {
+                    $component = ilObjectDefinition::getComponentForType($entity);
+                    if (!empty(($component))) {
+                        $deps[] = array(
+                            "component" => $component,
+                            "entity" => $entity,
+                            "ids" => $obj_id
+                        );
+                    }
+                }
+            }
+        }
+
+        return $deps;
+    }
 
     /**
      * Get xml representation
@@ -17,32 +57,23 @@ class ilCardExporter extends ilXmlExporter
     public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id) : string
     {
         return true;
-        $obj_id = intval(explode(":", $a_id)[1]);
-        $ref_ids = ilObject::_getAllReferences($obj_id);
-        $ref_id = array_shift($ref_ids);
-        var_dump($a_id, $obj_id, $ref_id); die();
-
-        if (empty($ref_id)) return false;
-
-        $obj = ilObjectFactory::getInstanceByRefId($ref_id);
-        $title = $obj->getTitle();
-        $description = $obj->getDescription();
-        $layout = "square";
-        $starting_date = false;
-        $duration = false;
-
-        $writer = new ilXmlWriter();
-        $writer->xmlStartTag("pcard");
-        $writer->xmlElement("title", null, $title);
-        $writer->xmlElement("description", null, $description);
-        $writer->xmlEndTag("pcard");
-
-        return $writer->xmlDumpMem(false);
     }
 
     public function init() : void
     {
         // TODO: Implement init() method.
+    }
+
+    /**
+     * Get tail dependencies
+     * @param string        entity
+     * @param string        target release
+     * @param array        ids
+     * @return        array        array of array with keys "component", entity", "ids"
+     */
+    public function getXmlExportTailDependencies(/* string */ $a_entity, /* string */ $a_target_release, /* array */ $a_ids) /* : array */
+    {
+        return array();
     }
 
     /**

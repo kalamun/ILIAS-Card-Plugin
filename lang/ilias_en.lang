@@ -1,10 +1,13 @@
 cmd_insert#:#Insert Card
 content_plugin_version#:#Content last edited with version
 edit_input_field#:#Edit Card
-downloaded#:#Downloaded
-in_progress#:#In progress
-completed#:#Completed
-failed#:#Not passed
+download#:#Download
+downloaded#:#Download
+not_started#:#
+in_progress#:#Resume
+completed#:#Restart
+played#:#Replay
+failed#:#Retry
 mandatory#:#Mandatory to be completed
 start#:#Start
 open#:#Open
@@ -12,12 +15,25 @@ layout#:#Layout
 square#:#Square
 wide#:#Wide
 starting_date#:#Starting date
+ending_date#:#Ending date
 duration#:#Duration
 opens_10_minutes_before#:#Opens 10 minutes before
 ended#:#Ended
 join_call#:#Join the call
 score#:#score
 not_available#:#Not available
-card_type#:#Card type
-auto#:#Normal
-webscorm#:#Webscorm
+card_type#:#Content type
+auto#:#Auto-detect
+web_step1#:#Web, self-evaluation
+web_step2#:#Web, final evaluation
+web_locked#:#Locked
+web_start#:#Start
+web_inprogress#:#In progress
+web_completed#:#Completed
+progress_not_started#:#.
+progress_downloaded#:#Done
+progress_finished#:#Completed
+progress_completed#:#Passed
+progress_passed#:#Passed
+progress_in_progress#:#In progress
+progress_failed#:#Not passed
