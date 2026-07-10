@@ -161,58 +161,58 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         natcasesort($select_options);
         
         // choose object
-        $input_ref_if = new ilSelectInputGUI($this->lng->txt("object"), "ref_id");
+        $input_ref_if = new ilSelectInputGUI($this->lng->txt("object"), "card_ref_id");
         $input_ref_if->setRequired(true);
         $input_ref_if->setOptions($select_options);
         $form->addItem($input_ref_if);
 
         // thumbnail
-        $thumbnail = new ilImageFileInputGUI($this->lng->txt("thumbnail"), 'thumbnail');
+        $thumbnail = new ilImageFileInputGUI($this->lng->txt("thumbnail"), 'card_thumbnail');
         $thumbnail->setAllowDeletion(true);
         $thumbnail->setRequired(false);
 
         $form->addItem($thumbnail);
         
         // title
-        $input_title = new ilTextInputGUI($this->lng->txt("title"), 'title');
+        $input_title = new ilTextInputGUI($this->lng->txt("title"), 'card_title');
         $input_title->setMaxLength(255);
         $input_title->setSize(40);
         $input_title->setRequired(false);
         $form->addItem($input_title);
         
         // description
-        $input_description = new ilTextInputGUI($this->lng->txt("description"), 'description');
+        $input_description = new ilTextInputGUI($this->lng->txt("description"), 'card_description');
         $input_description->setMaxLength(255);
         $input_description->setSize(40);
         $input_description->setRequired(false);
         $form->addItem($input_description);
 
         // dates
-        $starting_date = new ilDateTimeInputGUI($this->plugin->txt("starting_date"), 'starting_date');
+        $starting_date = new ilDateTimeInputGUI($this->plugin->txt("starting_date"), 'card_starting_date');
         $starting_date->setShowTime(true);
         $starting_date->setRequired(false);
         $form->addItem($starting_date);
 
-        $duration = new ilDurationInputGUI($this->plugin->txt("duration"), 'duration');
+        $duration = new ilDurationInputGUI($this->plugin->txt("duration"), 'card_duration');
         $duration->setRequired(false);
         $form->addItem($duration);
 
         // type
         $select_type = new ilSelectInputGUI($this->plugin->txt("type"));
-        $select_type->setPostVar("type");
+        $select_type->setPostVar("card_type");
         $select_type->setOptions(["" => $this->plugin->txt("auto"), "webscorm" => $this->plugin->txt("webscorm")]);
         $select_type->setRequired(true);
         $form->addItem($select_type);
 
         // layout
         $select_layout = new ilSelectInputGUI($this->plugin->txt("layout"));
-        $select_layout->setPostVar("layout");
+        $select_layout->setPostVar("card_layout");
         $select_layout->setOptions(["square" => $this->plugin->txt("square"), "wide" => $this->plugin->txt("wide")]);
         $select_layout->setRequired(true);
         $form->addItem($select_layout);
 
         // mandatory
-        $input_mandatory = new ilCheckboxInputGUI($this->plugin->txt("mandatory"), 'mandatory');
+        $input_mandatory = new ilCheckboxInputGUI($this->plugin->txt("mandatory"), 'card_mandatory');
         $input_mandatory->setRequired(false);
         $form->addItem($input_mandatory);
         
@@ -256,15 +256,15 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if ($form->checkInput()) {
             $properties = $this->getProperties();
 
-            $properties['ref_id'] = $form->getInput('ref_id');
-            $properties['title'] = $form->getInput('title');
-            $properties['description'] = $form->getInput('description');
-            $properties['type'] = $form->getInput('type');
-            $properties['layout'] = $form->getInput('layout');
-            $properties['starting_date'] = $form->getInput('starting_date');
-            $properties['duration'] = implode(":", $form->getInput('duration'));
+            $properties['ref_id'] = $form->getInput('card_ref_id');
+            $properties['title'] = $form->getInput('card_title');
+            $properties['description'] = $form->getInput('card_description');
+            $properties['type'] = $form->getInput('card_type');
+            $properties['layout'] = $form->getInput('card_layout');
+            $properties['starting_date'] = $form->getInput('card_starting_date');
+            $properties['duration'] = implode(":", $form->getInput('card_duration'));
 
-            $mandatory = $form->getInput('mandatory');
+            $mandatory = $form->getInput('card_mandatory');
             $root_course = dciSkin_tabs::getRootCourse($_GET['ref_id']);
     
             dciCourse::update_mandatory_object($root_course['obj_id'], $properties['ref_id'], $mandatory);
