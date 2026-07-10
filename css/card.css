@@ -37,6 +37,7 @@
     height: 100%;
     background: var(--color-white);
     padding: 10px;
+    box-shadow: var(--box-shadow);
 }
 .kalamun-card .kalamun-card_image {
     position: relative;
@@ -146,7 +147,7 @@
 .kalamun-card .kalamun-card_body {
     display: flex;
     flex-direction: column;
-    padding: 0.5em 0.8em 0 0.8em;
+    padding: 0.5em 0 0 0;
     gap: 1em;
     justify-content: space-between;
     flex-basis: 100%;
@@ -165,6 +166,14 @@
 }
 .kalamun-card .kalamun-card_cta {
     text-align: center !important;
+}
+.kalamun-card .kalamun-card_cta button {
+    border: 0;
+    width: 100%;
+    color: var(--color-white);
+    background: var(--color-red);
+    margin: 0;
+    padding: 0.5em 1em;
 }
 .kalamun-card[data-layout="wide"] .kalamun-card_cta {
     position: absolute;

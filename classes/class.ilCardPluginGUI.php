@@ -55,7 +55,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             default:
                 // perform valid commands
                 $cmd = $this->ctrl->getCmd();
-                if (in_array($cmd, array("create", "save", "edit", "update", "cancel", "downloadFile"))) {
+                if (in_array($cmd, array("create", "create_plug", "save", "edit", "update", "cancel", "downloadFile"))) {
                     $this->$cmd();
                 }
                 break;
@@ -265,14 +265,14 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if ($form->checkInput()) {
             $properties = $this->getProperties();
 
-            $properties['ref_id'] = $form->getInput('ref_id');
-            $properties['title'] = $form->getInput('title');
-            $properties['description'] = $form->getInput('description');
-            $properties['type'] = $form->getInput('type');
-            $properties['layout'] = $form->getInput('layout');
-            $properties['starting_date'] = $form->getInput('starting_date');
-            $properties['ending_date'] = $form->getInput('ending_date');
-            $duration = $form->getInput('duration');
+            $properties['ref_id'] = $form->getInput('card_ref_id');
+            $properties['title'] = $form->getInput('card_title');
+            $properties['description'] = $form->getInput('card_description');
+            $properties['type'] = $form->getInput('card_type');
+            $properties['layout'] = $form->getInput('card_layout');
+            $properties['starting_date'] = $form->getInput('card_starting_date');
+            $properties['ending_date'] = $form->getInput('card_ending_date');
+            $duration = $form->getInput('card_duration');
             $properties['duration'] = (intval($duration["dd"])*24 + intval($duration["hh"])) . ':' . intval($duration["mm"]);
 
             $mandatory = $form->getInput('card_mandatory');
@@ -280,30 +280,30 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     
             dciCourse::update_mandatory_object($root_course['obj_id'], $properties['ref_id'], $mandatory);
 
-            foreach(["thumbnail"] as $key) {
-                if (!empty($_FILES[$key]["name"])) {
+            foreach(["thumbnail" => "card_thumbnail"] as $key => $post_var) {
+                if (!empty($_FILES[$post_var]["name"])) {
                     $old_file_id = empty($properties[$key]) ? null : $properties[$key];
-                    
+
                     $fileObj = new ilObjFile((int) $old_file_id, false);
                     $fileObj->setType("file");
-                    $fileObj->setTitle($_FILES[$key]["name"]);
+                    $fileObj->setTitle($_FILES[$post_var]["name"]);
                     $fileObj->setDescription("");
-                    $fileObj->setFileName($_FILES[$key]["name"]);
+                    $fileObj->setFileName($_FILES[$post_var]["name"]);
                     $fileObj->setMode("filelist");
                     if (empty($old_file_id)) {
                         $fileObj->create();
                     } else {
                         $fileObj->update();
                     }
-    
+
                     // upload file to filesystem
-                    if ($_FILES[$key]["tmp_name"] !== "") {
+                    if ($_FILES[$post_var]["tmp_name"] !== "") {
                         $fileObj->getUploadFile(
-                            $_FILES[$key]["tmp_name"],
-                            $_FILES[$key]["name"]
+                            $_FILES[$post_var]["tmp_name"],
+                            $_FILES[$post_var]["name"]
                         );
                     }
-    
+
                     $properties[$key] = $fileObj->getId();
                 }
             }
@@ -372,7 +372,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
 
         // thumbnail
         $thumbnail_url = "";
-        if (!emptY($a_properties['thumbnail'])) {
+        if (!empty($a_properties['thumbnail'])) {
             $fileObj = new ilObjFile($a_properties['thumbnail'], false);
             if (!empty($fileObj)) {
                 $_SESSION[__CLASS__]['allowedFiles'][$fileObj->getId()] = true;
@@ -380,8 +380,8 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                 $thumbnail_url = $this->ctrl->getLinkTargetByClass(array('ilUIPluginRouterGUI', 'ilCardPluginGUI'), 'downloadFile');
             }
         } else {
-            $tile_image = $this->object->commonSettings()->tileImage()->getByObjId($obj_id);
-            $thumbnail_url = $tile_image->exists() ? $tile_image->getFullPath() : "";
+//            $tile_image = $this->object->commonSettings()->tileImage()->getByObjId($obj_id);
+//            $thumbnail_url = $tile_image->exists() ? $tile_image->getFullPath() : "";
         }
 
 
@@ -459,11 +459,11 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         } else {
             $lp = ilLearningProgress::_getProgress($this->user->getId(), $obj_id);
             $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
-            $lp_percent = $lp['spent_seconds'] < 60 ? 0 : ilLPStatus::_lookupPercentage($obj_id, $this->user->getId());
+            $lp_percent = ($lp['spent_seconds'] ?? 0) < 60 ? 0 : ilLPStatus::_lookupPercentage($obj_id, $this->user->getId());
             $lp_in_progress = !empty(ilLPStatus::_lookupInProgressForObject($obj_id, [$this->user->getId()]));
             $lp_completed = ilLPStatus::_hasUserCompleted($obj_id, $this->user->getId());
             $lp_failed = !empty(ilLPStatus::_lookupFailedForObject($obj_id, [$this->user->getId()]));
-            $lp_downloaded = $lp['visits'] > 0 && $type == "file";
+            $lp_downloaded = ($lp['visits'] ?? 0) > 0 && $type == "file";
             $has_tests = false;
             $lp_success_status = "unknown";
             $lp_scores = [];
@@ -484,14 +484,14 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             }
         }
         
-        $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds']))) . " min";
+        $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds'] ?? 0))) . " min";
         $nice_learning_time = (!empty($duration[0]) ? $duration[0] . "h " : "") . $duration[1] . "min";
         
         if( empty( $lp_percent ) && ($lp_completed || $lp_downloaded)) {
             $lp_percent = 100;
         }
         if( empty( $lp_percent ) && !empty($typical_learning_time)) {
-            $lp_percent = round(90 / $typical_learning_time * $lp['spent_seconds']);
+            $lp_percent = round(90 / $typical_learning_time * ($lp['spent_seconds'] ?? 0));
         }
         if( empty( $lp_percent ) && $lp_in_progress) {
             $lp_percent = 50;
