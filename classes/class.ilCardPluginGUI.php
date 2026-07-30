@@ -344,7 +344,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         if (empty($obj)) return "Invalid object";
         
         $obj_id = $obj->getId();
-        $lp_mode = 0; //$obj->getLPMode();
         $type = $obj->getType();
         $title = !empty($a_properties['title']) ? $a_properties['title'] : $obj->getTitle();
         $description = !empty($a_properties['description']) ? $a_properties['description'] : $obj->getDescription();
@@ -371,17 +370,22 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         }
 
         // thumbnail
-        $thumbnail_url = "";
+        $tile_image_path = "";
+        $tile_image_exists = false;
         if (!empty($a_properties['thumbnail'])) {
             $fileObj = new ilObjFile($a_properties['thumbnail'], false);
             if (!empty($fileObj)) {
                 $_SESSION[__CLASS__]['allowedFiles'][$fileObj->getId()] = true;
                 $this->ctrl->setParameter($this, 'id', $fileObj->getId());
-                $thumbnail_url = $this->ctrl->getLinkTargetByClass(array('ilUIPluginRouterGUI', 'ilCardPluginGUI'), 'downloadFile');
+                $tile_image_path = $this->ctrl->getLinkTargetByClass(array('ilUIPluginRouterGUI', 'ilCardPluginGUI'), 'downloadFile');
+                $tile_image_exists = !empty($tile_image_path);
             }
-        } else {
-//            $tile_image = $this->object->commonSettings()->tileImage()->getByObjId($obj_id);
-//            $thumbnail_url = $tile_image->exists() ? $tile_image->getFullPath() : "";
+        }
+
+        if (empty($tile_image_exists)) {
+            $obj_properties = \ILIAS\Object\ilObjectDIC::dic()['object_properties_agregator']->getFor($obj_id, $type);
+            $tile_image_path = $obj_properties->getPropertyTileImage()->getTileImage()->getSrcUrlForLegacyForm();
+            $tile_image_exists = !empty($tile_image_path);
         }
 
 
@@ -446,7 +450,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
 
         if (!$supported_lp) {
             $lp = ['spent_seconds' => 0];
-            $lp_status = 0;
             $lp_completed = false;
             $lp_in_progress = false;
             $lp_failed = false;
@@ -458,7 +461,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             }
         } else {
             $lp = ilLearningProgress::_getProgress($this->user->getId(), $obj_id);
-            $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
             $lp_percent = ($lp['spent_seconds'] ?? 0) < 60 ? 0 : ilLPStatus::_lookupPercentage($obj_id, $this->user->getId());
             $lp_in_progress = !empty(ilLPStatus::_lookupInProgressForObject($obj_id, [$this->user->getId()]));
             $lp_completed = ilLPStatus::_hasUserCompleted($obj_id, $this->user->getId());
@@ -472,7 +474,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             if (class_exists("dciCourse")) {
                 $lp_progresses = dciCourse::get_obj_progress($obj_id, $this->user->getId());
                 if (count($lp_progresses) > 0) {
-                    $lp_passed = true;
                     foreach($lp_progresses as $progress) {
                         if (!empty($progress->c_max)) $has_tests = true;
                         if (!empty($progress->access_count)) $has_tests = true;
@@ -542,7 +543,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
                     ?>
                     <?= $ui_elements['progress_bar']; ?>
                     <?= ($status === 'online' && !empty($permalink)) ? '<a href="' . $permalink . '" title="' . addslashes($title) . '">' : ''; ?>
-                        <?= (!empty($thumbnail_url) ? '<img src="' . $thumbnail_url . '" class="kalamun-card_thumbnail" />' : '<span class="kalamun-card_thumbnail"></span>'); ?>
+                        <?= ($tile_image_exists ? '<img src="' . $tile_image_path . '" class="kalamun-card_thumbnail" />' : '<span class="kalamun-card_thumbnail"></span>'); ?>
                     <?= ($status === 'online' && !empty($permalink)) ? '</a>' : ''; ?>
                 </div>
                 <div class="kalamun-card_body">

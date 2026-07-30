@@ -6,7 +6,7 @@
  */
 class ilCardExporter extends ilXmlExporter
 {
-    public function getXmlExportHeadDependencies(/* string */ $a_entity, /* string */ $a_target_release, /* array */ $a_ids) /* : array */
+    public function getXmlExportHeadDependencies(string $a_entity, string $a_target_release, array $a_ids) : array
     {
         $deps = [];
         foreach ($a_ids as $id) {
@@ -71,7 +71,7 @@ class ilCardExporter extends ilXmlExporter
      * @param array        ids
      * @return        array        array of array with keys "component", entity", "ids"
      */
-    public function getXmlExportTailDependencies(/* string */ $a_entity, /* string */ $a_target_release, /* array */ $a_ids) /* : array */
+    public function getXmlExportTailDependencies(string $a_entity, string $a_target_release, array $a_ids) : array
     {
         return array();
     }
