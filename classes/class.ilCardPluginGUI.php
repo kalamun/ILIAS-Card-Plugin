@@ -341,7 +341,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
     {
         $ref_id = $a_properties['ref_id'];
         $obj = ilObjectFactory::getInstanceByRefId($ref_id, false);
-        if (empty($obj)) return "Invalid object";
+        if (empty($obj)) return "Invalid object (Ref id: " . $ref_id . ")";
         
         $obj_id = $obj->getId();
         $type = $obj->getType();
