@@ -423,6 +423,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $this->ctrl->setParameterByClass("ilRepositoryGUI", "ref_id", $ref_id);
             $permalink = $this->ctrl->getLinkTargetByClass("ilRepositoryGUI", "showThreads");
             ///ilias.php?ref_id=107&cmd=showThreads&cmdClass=ilrepositorygui&cmdNode=wx&baseClass=ilRepositoryGUI
+        } elseif ($type == "svy") {
+            $this->ctrl->setParameterByClass("ilobjsurveygui", "ref_id", $ref_id);
+            $permalink = $this->ctrl->getLinkTargetByClass(["ilobjsurveygui", \ILIAS\Survey\Execution\LaunchGUI::class], "launch");
+            ///ilias.php?baseClass=ilobjsurveygui&cmdNode=qo:18&cmdClass=ILIAS%5CSurvey%5CExecution%5CLaunchGUI&ref_id=101
         } else {
             $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $ref_id);
             $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
@@ -445,19 +449,21 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
 
         if (!$supported_lp) {
             $lp = ['spent_seconds' => 0];
-            $lp_status = 0;
+            $lp_percent = 0;
             $lp_completed = false;
             $lp_in_progress = false;
             $lp_failed = false;
             $lp_downloaded = false;
+            $has_tests = false;
             $lp_progresses = [];
             $lp_success_status = "unknown";
+            $lp_scores = [];
             if ($type === 'xjits') {
                 $lp_completed = ilLPStatus::_hasUserCompleted($obj_id, $this->user->getId());
+                $lp_percent = ($lp_completed ? 100 : 0);
             }
         } else {
             $lp = ilLearningProgress::_getProgress($this->user->getId(), $obj_id);
-            $lp_status = ilLPStatus::_lookupStatus($obj_id, $this->user->getId());
             $lp_percent = $lp['spent_seconds'] < 60 ? 0 : ilLPStatus::_lookupPercentage($obj_id, $this->user->getId());
             $lp_in_progress = !empty(ilLPStatus::_lookupInProgressForObject($obj_id, [$this->user->getId()]));
             $lp_completed = ilLPStatus::_hasUserCompleted($obj_id, $this->user->getId());
@@ -471,7 +477,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             if (class_exists("dciCourse")) {
                 $lp_progresses = dciCourse::get_obj_progress($obj_id, $this->user->getId());
                 if (count($lp_progresses) > 0) {
-                    $lp_passed = true;
                     foreach($lp_progresses as $progress) {
                         if (!empty($progress->c_max)) $has_tests = true;
                         if (!empty($progress->access_count)) $has_tests = true;
@@ -483,7 +488,6 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             }
         }
         
-        $nice_spent_minutes = str_replace("00:", "", gmdate("H:i",($lp['spent_seconds']))) . " min";
         $nice_learning_time = (!empty($duration[0]) ? $duration[0] . "h " : "") . $duration[1] . "min";
         
         if( empty( $lp_percent ) && ($lp_completed || $lp_downloaded)) {
@@ -503,7 +507,7 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
             $lp_completed = true;
         }
         
-        $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst", "copa"]);
+        $has_progress = in_array($type, ["lm", "sahs", "file", "htlm", "tst", "copa", "svy"]);
 
         // if the auto-evaluation scored 50 (1st part finished), put the pt1 card offline (user can't re-access to the first part)
         if ($content_type == "web_step1" && ($has_progress && $lp_percent >= 50)) $status = 'offline';
