@@ -426,7 +426,10 @@ class ilCardPluginGUI extends ilPageComponentPluginGUI
         } elseif ($type == "svy") {
             $this->ctrl->setParameterByClass("ilobjsurveygui", "ref_id", $ref_id);
             $permalink = $this->ctrl->getLinkTargetByClass("ilobjsurveygui", "infoScreen");
-            ///ilias.php?baseClass=ilobjsurveygui&cmdNode=qo:18&cmdClass=ILIAS%5CSurvey%5CExecution%5CLaunchGUI&ref_id=101
+            $permalink = str_replace("baseClass=ilRepositoryGUI", "baseClass=ilObjSurveyGUI", $permalink);
+            $permalink = str_replace("baseClass=ilrepositorygui", "baseClass=ilObjSurveyGUI", $permalink);
+            $permalink = preg_replace("/cmdNode=[^&]+&/i", "", $permalink);
+            ///ilias.php?ref_id=28349&cmd=infoScreen&cmdClass=ilobjsurveygui&baseClass=ilObjSurveyGUI
         } else {
             $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $ref_id);
             $permalink = $this->ctrl->getLinkTargetByClass("ilrepositorygui", "view");
