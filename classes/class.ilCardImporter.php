@@ -40,7 +40,8 @@ class ilCardImporter extends ilPageComponentPluginImporter /* ilXmlImporter */
             }
         }
 
-        if ($old_file_id = $properties['thumbnail']) {
+        if (!empty($properties['thumbnail'])) {
+            $old_file_id = $properties['thumbnail'];
             $new_file_id = $a_mapping->getMapping("Modules/File", 'file', $old_file_id);
             $properties['thumbnail'] = $new_file_id;
         }
